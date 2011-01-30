@@ -103,30 +103,6 @@
 		E4F3BAFC12F4C745002D19BB /* ofURLFileLoader.h in Headers */ = {isa = PBXBuildFile; fileRef = E4F3BAEE12F4C745002D19BB /* ofURLFileLoader.h */; };
 		E4F3BAFD12F4C745002D19BB /* ofUtils.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E4F3BAEF12F4C745002D19BB /* ofUtils.cpp */; };
 		E4F3BAFE12F4C745002D19BB /* ofUtils.h in Headers */ = {isa = PBXBuildFile; fileRef = E4F3BAF012F4C745002D19BB /* ofUtils.h */; };
-		E4F3BB1812F4C752002D19BB /* ofBitmapFont.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E4F3BB0012F4C751002D19BB /* ofBitmapFont.cpp */; };
-		E4F3BB1912F4C752002D19BB /* ofBitmapFont.h in Headers */ = {isa = PBXBuildFile; fileRef = E4F3BB0112F4C751002D19BB /* ofBitmapFont.h */; };
-		E4F3BB1A12F4C752002D19BB /* ofFbo.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E4F3BB0212F4C751002D19BB /* ofFbo.cpp */; };
-		E4F3BB1B12F4C752002D19BB /* ofFbo.h in Headers */ = {isa = PBXBuildFile; fileRef = E4F3BB0312F4C751002D19BB /* ofFbo.h */; };
-		E4F3BB1C12F4C752002D19BB /* ofGraphics.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E4F3BB0412F4C752002D19BB /* ofGraphics.cpp */; };
-		E4F3BB1D12F4C752002D19BB /* ofGraphics.h in Headers */ = {isa = PBXBuildFile; fileRef = E4F3BB0512F4C752002D19BB /* ofGraphics.h */; };
-		E4F3BB1E12F4C752002D19BB /* ofImage.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E4F3BB0612F4C752002D19BB /* ofImage.cpp */; };
-		E4F3BB1F12F4C752002D19BB /* ofImage.h in Headers */ = {isa = PBXBuildFile; fileRef = E4F3BB0712F4C752002D19BB /* ofImage.h */; };
-		E4F3BB2012F4C752002D19BB /* ofPixels.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E4F3BB0812F4C752002D19BB /* ofPixels.cpp */; };
-		E4F3BB2112F4C752002D19BB /* ofPixels.h in Headers */ = {isa = PBXBuildFile; fileRef = E4F3BB0912F4C752002D19BB /* ofPixels.h */; };
-		E4F3BB2212F4C752002D19BB /* ofPixelUtils.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E4F3BB0A12F4C752002D19BB /* ofPixelUtils.cpp */; };
-		E4F3BB2312F4C752002D19BB /* ofPixelUtils.h in Headers */ = {isa = PBXBuildFile; fileRef = E4F3BB0B12F4C752002D19BB /* ofPixelUtils.h */; };
-		E4F3BB2412F4C752002D19BB /* ofShader.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E4F3BB0C12F4C752002D19BB /* ofShader.cpp */; };
-		E4F3BB2512F4C752002D19BB /* ofShader.h in Headers */ = {isa = PBXBuildFile; fileRef = E4F3BB0D12F4C752002D19BB /* ofShader.h */; };
-		E4F3BB2612F4C752002D19BB /* ofShape.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E4F3BB0E12F4C752002D19BB /* ofShape.cpp */; };
-		E4F3BB2712F4C752002D19BB /* ofShape.h in Headers */ = {isa = PBXBuildFile; fileRef = E4F3BB0F12F4C752002D19BB /* ofShape.h */; };
-		E4F3BB2812F4C752002D19BB /* ofShapeUtils.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E4F3BB1012F4C752002D19BB /* ofShapeUtils.cpp */; };
-		E4F3BB2912F4C752002D19BB /* ofShapeUtils.h in Headers */ = {isa = PBXBuildFile; fileRef = E4F3BB1112F4C752002D19BB /* ofShapeUtils.h */; };
-		E4F3BB2A12F4C752002D19BB /* ofTessellator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E4F3BB1212F4C752002D19BB /* ofTessellator.cpp */; };
-		E4F3BB2B12F4C752002D19BB /* ofTessellator.h in Headers */ = {isa = PBXBuildFile; fileRef = E4F3BB1312F4C752002D19BB /* ofTessellator.h */; };
-		E4F3BB2C12F4C752002D19BB /* ofTexture.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E4F3BB1412F4C752002D19BB /* ofTexture.cpp */; };
-		E4F3BB2D12F4C752002D19BB /* ofTexture.h in Headers */ = {isa = PBXBuildFile; fileRef = E4F3BB1512F4C752002D19BB /* ofTexture.h */; };
-		E4F3BB2E12F4C752002D19BB /* ofTrueTypeFont.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E4F3BB1612F4C752002D19BB /* ofTrueTypeFont.cpp */; };
-		E4F3BB2F12F4C752002D19BB /* ofTrueTypeFont.h in Headers */ = {isa = PBXBuildFile; fileRef = E4F3BB1712F4C752002D19BB /* ofTrueTypeFont.h */; };
 		E4F3BD2412F4F7BF002D19BB /* ofModel.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E4F3BD2012F4F7BF002D19BB /* ofModel.cpp */; };
 		E4F3BD2512F4F7BF002D19BB /* ofModel.h in Headers */ = {isa = PBXBuildFile; fileRef = E4F3BD2112F4F7BF002D19BB /* ofModel.h */; };
 		E4F3BD2612F4F7BF002D19BB /* ofModelUtils.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E4F3BD2212F4F7BF002D19BB /* ofModelUtils.cpp */; };
@@ -162,6 +138,34 @@
 		E4F3BD7012F4F8B0002D19BB /* LogStream.h in Headers */ = {isa = PBXBuildFile; fileRef = E4F3BD4E12F4F8B0002D19BB /* LogStream.h */; };
 		E4F3BD7112F4F8B0002D19BB /* NullLogger.h in Headers */ = {isa = PBXBuildFile; fileRef = E4F3BD4F12F4F8B0002D19BB /* NullLogger.h */; };
 		E4F3BD7212F4F8B0002D19BB /* ProgressHandler.h in Headers */ = {isa = PBXBuildFile; fileRef = E4F3BD5012F4F8B0002D19BB /* ProgressHandler.h */; };
+		E4F3BF6D12F5AE78002D19BB /* ofBitmapFont.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E4F3BF4F12F5AE78002D19BB /* ofBitmapFont.cpp */; };
+		E4F3BF6E12F5AE78002D19BB /* ofBitmapFont.h in Headers */ = {isa = PBXBuildFile; fileRef = E4F3BF5012F5AE78002D19BB /* ofBitmapFont.h */; };
+		E4F3BF7112F5AE78002D19BB /* ofFbo.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E4F3BF5312F5AE78002D19BB /* ofFbo.cpp */; };
+		E4F3BF7212F5AE78002D19BB /* ofFbo.h in Headers */ = {isa = PBXBuildFile; fileRef = E4F3BF5412F5AE78002D19BB /* ofFbo.h */; };
+		E4F3BF7312F5AE78002D19BB /* ofGLRenderer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E4F3BF5512F5AE78002D19BB /* ofGLRenderer.cpp */; };
+		E4F3BF7412F5AE78002D19BB /* ofGLRenderer.h in Headers */ = {isa = PBXBuildFile; fileRef = E4F3BF5612F5AE78002D19BB /* ofGLRenderer.h */; };
+		E4F3BF7512F5AE78002D19BB /* ofGraphics.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E4F3BF5712F5AE78002D19BB /* ofGraphics.cpp */; };
+		E4F3BF7612F5AE78002D19BB /* ofGraphics.h in Headers */ = {isa = PBXBuildFile; fileRef = E4F3BF5812F5AE78002D19BB /* ofGraphics.h */; };
+		E4F3BF7712F5AE78002D19BB /* ofImage.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E4F3BF5912F5AE78002D19BB /* ofImage.cpp */; };
+		E4F3BF7812F5AE78002D19BB /* ofImage.h in Headers */ = {isa = PBXBuildFile; fileRef = E4F3BF5A12F5AE78002D19BB /* ofImage.h */; };
+		E4F3BF7912F5AE78002D19BB /* ofPath.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E4F3BF5B12F5AE78002D19BB /* ofPath.cpp */; };
+		E4F3BF7A12F5AE78002D19BB /* ofPath.h in Headers */ = {isa = PBXBuildFile; fileRef = E4F3BF5C12F5AE78002D19BB /* ofPath.h */; };
+		E4F3BF7B12F5AE78002D19BB /* ofPixels.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E4F3BF5D12F5AE78002D19BB /* ofPixels.cpp */; };
+		E4F3BF7C12F5AE78002D19BB /* ofPixels.h in Headers */ = {isa = PBXBuildFile; fileRef = E4F3BF5E12F5AE78002D19BB /* ofPixels.h */; };
+		E4F3BF7D12F5AE78002D19BB /* ofPixelUtils.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E4F3BF5F12F5AE78002D19BB /* ofPixelUtils.cpp */; };
+		E4F3BF7E12F5AE78002D19BB /* ofPixelUtils.h in Headers */ = {isa = PBXBuildFile; fileRef = E4F3BF6012F5AE78002D19BB /* ofPixelUtils.h */; };
+		E4F3BF7F12F5AE78002D19BB /* ofShader.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E4F3BF6112F5AE78002D19BB /* ofShader.cpp */; };
+		E4F3BF8012F5AE78002D19BB /* ofShader.h in Headers */ = {isa = PBXBuildFile; fileRef = E4F3BF6212F5AE78002D19BB /* ofShader.h */; };
+		E4F3BF8112F5AE78002D19BB /* ofShape.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E4F3BF6312F5AE78002D19BB /* ofShape.cpp */; };
+		E4F3BF8212F5AE78002D19BB /* ofShape.h in Headers */ = {isa = PBXBuildFile; fileRef = E4F3BF6412F5AE78002D19BB /* ofShape.h */; };
+		E4F3BF8312F5AE78002D19BB /* ofShapeUtils.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E4F3BF6512F5AE78002D19BB /* ofShapeUtils.cpp */; };
+		E4F3BF8412F5AE78002D19BB /* ofShapeUtils.h in Headers */ = {isa = PBXBuildFile; fileRef = E4F3BF6612F5AE78002D19BB /* ofShapeUtils.h */; };
+		E4F3BF8512F5AE78002D19BB /* ofTessellator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E4F3BF6712F5AE78002D19BB /* ofTessellator.cpp */; };
+		E4F3BF8612F5AE78002D19BB /* ofTessellator.h in Headers */ = {isa = PBXBuildFile; fileRef = E4F3BF6812F5AE78002D19BB /* ofTessellator.h */; };
+		E4F3BF8712F5AE78002D19BB /* ofTexture.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E4F3BF6912F5AE78002D19BB /* ofTexture.cpp */; };
+		E4F3BF8812F5AE78002D19BB /* ofTexture.h in Headers */ = {isa = PBXBuildFile; fileRef = E4F3BF6A12F5AE78002D19BB /* ofTexture.h */; };
+		E4F3BF8912F5AE78002D19BB /* ofTrueTypeFont.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E4F3BF6B12F5AE78002D19BB /* ofTrueTypeFont.cpp */; };
+		E4F3BF8A12F5AE78002D19BB /* ofTrueTypeFont.h in Headers */ = {isa = PBXBuildFile; fileRef = E4F3BF6C12F5AE78002D19BB /* ofTrueTypeFont.h */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -285,30 +289,6 @@
 		E4F3BAEE12F4C745002D19BB /* ofURLFileLoader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ofURLFileLoader.h; path = ../../../openFrameworks/utils/ofURLFileLoader.h; sourceTree = SOURCE_ROOT; };
 		E4F3BAEF12F4C745002D19BB /* ofUtils.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ofUtils.cpp; path = ../../../openFrameworks/utils/ofUtils.cpp; sourceTree = SOURCE_ROOT; };
 		E4F3BAF012F4C745002D19BB /* ofUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ofUtils.h; path = ../../../openFrameworks/utils/ofUtils.h; sourceTree = SOURCE_ROOT; };
-		E4F3BB0012F4C751002D19BB /* ofBitmapFont.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ofBitmapFont.cpp; path = ../../../openFrameworks/graphics/ofBitmapFont.cpp; sourceTree = SOURCE_ROOT; };
-		E4F3BB0112F4C751002D19BB /* ofBitmapFont.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ofBitmapFont.h; path = ../../../openFrameworks/graphics/ofBitmapFont.h; sourceTree = SOURCE_ROOT; };
-		E4F3BB0212F4C751002D19BB /* ofFbo.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ofFbo.cpp; path = ../../../openFrameworks/graphics/ofFbo.cpp; sourceTree = SOURCE_ROOT; };
-		E4F3BB0312F4C751002D19BB /* ofFbo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ofFbo.h; path = ../../../openFrameworks/graphics/ofFbo.h; sourceTree = SOURCE_ROOT; };
-		E4F3BB0412F4C752002D19BB /* ofGraphics.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ofGraphics.cpp; path = ../../../openFrameworks/graphics/ofGraphics.cpp; sourceTree = SOURCE_ROOT; };
-		E4F3BB0512F4C752002D19BB /* ofGraphics.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ofGraphics.h; path = ../../../openFrameworks/graphics/ofGraphics.h; sourceTree = SOURCE_ROOT; };
-		E4F3BB0612F4C752002D19BB /* ofImage.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ofImage.cpp; path = ../../../openFrameworks/graphics/ofImage.cpp; sourceTree = SOURCE_ROOT; };
-		E4F3BB0712F4C752002D19BB /* ofImage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ofImage.h; path = ../../../openFrameworks/graphics/ofImage.h; sourceTree = SOURCE_ROOT; };
-		E4F3BB0812F4C752002D19BB /* ofPixels.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ofPixels.cpp; path = ../../../openFrameworks/graphics/ofPixels.cpp; sourceTree = SOURCE_ROOT; };
-		E4F3BB0912F4C752002D19BB /* ofPixels.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ofPixels.h; path = ../../../openFrameworks/graphics/ofPixels.h; sourceTree = SOURCE_ROOT; };
-		E4F3BB0A12F4C752002D19BB /* ofPixelUtils.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ofPixelUtils.cpp; path = ../../../openFrameworks/graphics/ofPixelUtils.cpp; sourceTree = SOURCE_ROOT; };
-		E4F3BB0B12F4C752002D19BB /* ofPixelUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ofPixelUtils.h; path = ../../../openFrameworks/graphics/ofPixelUtils.h; sourceTree = SOURCE_ROOT; };
-		E4F3BB0C12F4C752002D19BB /* ofShader.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ofShader.cpp; path = ../../../openFrameworks/graphics/ofShader.cpp; sourceTree = SOURCE_ROOT; };
-		E4F3BB0D12F4C752002D19BB /* ofShader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ofShader.h; path = ../../../openFrameworks/graphics/ofShader.h; sourceTree = SOURCE_ROOT; };
-		E4F3BB0E12F4C752002D19BB /* ofShape.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ofShape.cpp; path = ../../../openFrameworks/graphics/ofShape.cpp; sourceTree = SOURCE_ROOT; };
-		E4F3BB0F12F4C752002D19BB /* ofShape.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ofShape.h; path = ../../../openFrameworks/graphics/ofShape.h; sourceTree = SOURCE_ROOT; };
-		E4F3BB1012F4C752002D19BB /* ofShapeUtils.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ofShapeUtils.cpp; path = ../../../openFrameworks/graphics/ofShapeUtils.cpp; sourceTree = SOURCE_ROOT; };
-		E4F3BB1112F4C752002D19BB /* ofShapeUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ofShapeUtils.h; path = ../../../openFrameworks/graphics/ofShapeUtils.h; sourceTree = SOURCE_ROOT; };
-		E4F3BB1212F4C752002D19BB /* ofTessellator.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ofTessellator.cpp; path = ../../../openFrameworks/graphics/ofTessellator.cpp; sourceTree = SOURCE_ROOT; };
-		E4F3BB1312F4C752002D19BB /* ofTessellator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ofTessellator.h; path = ../../../openFrameworks/graphics/ofTessellator.h; sourceTree = SOURCE_ROOT; };
-		E4F3BB1412F4C752002D19BB /* ofTexture.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ofTexture.cpp; path = ../../../openFrameworks/graphics/ofTexture.cpp; sourceTree = SOURCE_ROOT; };
-		E4F3BB1512F4C752002D19BB /* ofTexture.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ofTexture.h; path = ../../../openFrameworks/graphics/ofTexture.h; sourceTree = SOURCE_ROOT; };
-		E4F3BB1612F4C752002D19BB /* ofTrueTypeFont.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ofTrueTypeFont.cpp; path = ../../../openFrameworks/graphics/ofTrueTypeFont.cpp; sourceTree = SOURCE_ROOT; };
-		E4F3BB1712F4C752002D19BB /* ofTrueTypeFont.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ofTrueTypeFont.h; path = ../../../openFrameworks/graphics/ofTrueTypeFont.h; sourceTree = SOURCE_ROOT; };
 		E4F3BD2012F4F7BF002D19BB /* ofModel.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ofModel.cpp; path = ../../../openFrameworks/3d/ofModel.cpp; sourceTree = SOURCE_ROOT; };
 		E4F3BD2112F4F7BF002D19BB /* ofModel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ofModel.h; path = ../../../openFrameworks/3d/ofModel.h; sourceTree = SOURCE_ROOT; };
 		E4F3BD2212F4F7BF002D19BB /* ofModelUtils.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ofModelUtils.cpp; path = ../../../openFrameworks/3d/ofModelUtils.cpp; sourceTree = SOURCE_ROOT; };
@@ -349,6 +329,34 @@
 		E4F3BD4E12F4F8B0002D19BB /* LogStream.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = LogStream.h; path = ../../../assimp/include/LogStream.h; sourceTree = SOURCE_ROOT; };
 		E4F3BD4F12F4F8B0002D19BB /* NullLogger.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = NullLogger.h; path = ../../../assimp/include/NullLogger.h; sourceTree = SOURCE_ROOT; };
 		E4F3BD5012F4F8B0002D19BB /* ProgressHandler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ProgressHandler.h; path = ../../../assimp/include/ProgressHandler.h; sourceTree = SOURCE_ROOT; };
+		E4F3BF4F12F5AE78002D19BB /* ofBitmapFont.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ofBitmapFont.cpp; path = ../../../openFrameworks/graphics/ofBitmapFont.cpp; sourceTree = SOURCE_ROOT; };
+		E4F3BF5012F5AE78002D19BB /* ofBitmapFont.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ofBitmapFont.h; path = ../../../openFrameworks/graphics/ofBitmapFont.h; sourceTree = SOURCE_ROOT; };
+		E4F3BF5312F5AE78002D19BB /* ofFbo.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ofFbo.cpp; path = ../../../openFrameworks/graphics/ofFbo.cpp; sourceTree = SOURCE_ROOT; };
+		E4F3BF5412F5AE78002D19BB /* ofFbo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ofFbo.h; path = ../../../openFrameworks/graphics/ofFbo.h; sourceTree = SOURCE_ROOT; };
+		E4F3BF5512F5AE78002D19BB /* ofGLRenderer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ofGLRenderer.cpp; path = ../../../openFrameworks/graphics/ofGLRenderer.cpp; sourceTree = SOURCE_ROOT; };
+		E4F3BF5612F5AE78002D19BB /* ofGLRenderer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ofGLRenderer.h; path = ../../../openFrameworks/graphics/ofGLRenderer.h; sourceTree = SOURCE_ROOT; };
+		E4F3BF5712F5AE78002D19BB /* ofGraphics.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ofGraphics.cpp; path = ../../../openFrameworks/graphics/ofGraphics.cpp; sourceTree = SOURCE_ROOT; };
+		E4F3BF5812F5AE78002D19BB /* ofGraphics.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ofGraphics.h; path = ../../../openFrameworks/graphics/ofGraphics.h; sourceTree = SOURCE_ROOT; };
+		E4F3BF5912F5AE78002D19BB /* ofImage.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ofImage.cpp; path = ../../../openFrameworks/graphics/ofImage.cpp; sourceTree = SOURCE_ROOT; };
+		E4F3BF5A12F5AE78002D19BB /* ofImage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ofImage.h; path = ../../../openFrameworks/graphics/ofImage.h; sourceTree = SOURCE_ROOT; };
+		E4F3BF5B12F5AE78002D19BB /* ofPath.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ofPath.cpp; path = ../../../openFrameworks/graphics/ofPath.cpp; sourceTree = SOURCE_ROOT; };
+		E4F3BF5C12F5AE78002D19BB /* ofPath.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ofPath.h; path = ../../../openFrameworks/graphics/ofPath.h; sourceTree = SOURCE_ROOT; };
+		E4F3BF5D12F5AE78002D19BB /* ofPixels.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ofPixels.cpp; path = ../../../openFrameworks/graphics/ofPixels.cpp; sourceTree = SOURCE_ROOT; };
+		E4F3BF5E12F5AE78002D19BB /* ofPixels.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ofPixels.h; path = ../../../openFrameworks/graphics/ofPixels.h; sourceTree = SOURCE_ROOT; };
+		E4F3BF5F12F5AE78002D19BB /* ofPixelUtils.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ofPixelUtils.cpp; path = ../../../openFrameworks/graphics/ofPixelUtils.cpp; sourceTree = SOURCE_ROOT; };
+		E4F3BF6012F5AE78002D19BB /* ofPixelUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ofPixelUtils.h; path = ../../../openFrameworks/graphics/ofPixelUtils.h; sourceTree = SOURCE_ROOT; };
+		E4F3BF6112F5AE78002D19BB /* ofShader.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ofShader.cpp; path = ../../../openFrameworks/graphics/ofShader.cpp; sourceTree = SOURCE_ROOT; };
+		E4F3BF6212F5AE78002D19BB /* ofShader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ofShader.h; path = ../../../openFrameworks/graphics/ofShader.h; sourceTree = SOURCE_ROOT; };
+		E4F3BF6312F5AE78002D19BB /* ofShape.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ofShape.cpp; path = ../../../openFrameworks/graphics/ofShape.cpp; sourceTree = SOURCE_ROOT; };
+		E4F3BF6412F5AE78002D19BB /* ofShape.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ofShape.h; path = ../../../openFrameworks/graphics/ofShape.h; sourceTree = SOURCE_ROOT; };
+		E4F3BF6512F5AE78002D19BB /* ofShapeUtils.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ofShapeUtils.cpp; path = ../../../openFrameworks/graphics/ofShapeUtils.cpp; sourceTree = SOURCE_ROOT; };
+		E4F3BF6612F5AE78002D19BB /* ofShapeUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ofShapeUtils.h; path = ../../../openFrameworks/graphics/ofShapeUtils.h; sourceTree = SOURCE_ROOT; };
+		E4F3BF6712F5AE78002D19BB /* ofTessellator.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ofTessellator.cpp; path = ../../../openFrameworks/graphics/ofTessellator.cpp; sourceTree = SOURCE_ROOT; };
+		E4F3BF6812F5AE78002D19BB /* ofTessellator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ofTessellator.h; path = ../../../openFrameworks/graphics/ofTessellator.h; sourceTree = SOURCE_ROOT; };
+		E4F3BF6912F5AE78002D19BB /* ofTexture.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ofTexture.cpp; path = ../../../openFrameworks/graphics/ofTexture.cpp; sourceTree = SOURCE_ROOT; };
+		E4F3BF6A12F5AE78002D19BB /* ofTexture.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ofTexture.h; path = ../../../openFrameworks/graphics/ofTexture.h; sourceTree = SOURCE_ROOT; };
+		E4F3BF6B12F5AE78002D19BB /* ofTrueTypeFont.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ofTrueTypeFont.cpp; path = ../../../openFrameworks/graphics/ofTrueTypeFont.cpp; sourceTree = SOURCE_ROOT; };
+		E4F3BF6C12F5AE78002D19BB /* ofTrueTypeFont.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ofTrueTypeFont.h; path = ../../../openFrameworks/graphics/ofTrueTypeFont.h; sourceTree = SOURCE_ROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -453,7 +461,7 @@
 				E4B27AAB10CBE92A00536013 /* app */,
 				E4B27AB210CBE92A00536013 /* communication */,
 				E4B27AB910CBE92A00536013 /* events */,
-				E4F3BAFF12F4C751002D19BB /* graphics */,
+				E4F3BF4E12F5AE78002D19BB /* graphics */,
 				E4F3BA7B12F4C4C9002D19BB /* sound */,
 				E4F3BAB212F4C72E002D19BB /* math */,
 				E4F3BACF12F4C73C002D19BB /* types */,
@@ -705,38 +713,6 @@
 			path = ../../../openFrameworks/utils;
 			sourceTree = SOURCE_ROOT;
 		};
-		E4F3BAFF12F4C751002D19BB /* graphics */ = {
-			isa = PBXGroup;
-			children = (
-				E4F3BB0012F4C751002D19BB /* ofBitmapFont.cpp */,
-				E4F3BB0112F4C751002D19BB /* ofBitmapFont.h */,
-				E4F3BB0212F4C751002D19BB /* ofFbo.cpp */,
-				E4F3BB0312F4C751002D19BB /* ofFbo.h */,
-				E4F3BB0412F4C752002D19BB /* ofGraphics.cpp */,
-				E4F3BB0512F4C752002D19BB /* ofGraphics.h */,
-				E4F3BB0612F4C752002D19BB /* ofImage.cpp */,
-				E4F3BB0712F4C752002D19BB /* ofImage.h */,
-				E4F3BB0812F4C752002D19BB /* ofPixels.cpp */,
-				E4F3BB0912F4C752002D19BB /* ofPixels.h */,
-				E4F3BB0A12F4C752002D19BB /* ofPixelUtils.cpp */,
-				E4F3BB0B12F4C752002D19BB /* ofPixelUtils.h */,
-				E4F3BB0C12F4C752002D19BB /* ofShader.cpp */,
-				E4F3BB0D12F4C752002D19BB /* ofShader.h */,
-				E4F3BB0E12F4C752002D19BB /* ofShape.cpp */,
-				E4F3BB0F12F4C752002D19BB /* ofShape.h */,
-				E4F3BB1012F4C752002D19BB /* ofShapeUtils.cpp */,
-				E4F3BB1112F4C752002D19BB /* ofShapeUtils.h */,
-				E4F3BB1212F4C752002D19BB /* ofTessellator.cpp */,
-				E4F3BB1312F4C752002D19BB /* ofTessellator.h */,
-				E4F3BB1412F4C752002D19BB /* ofTexture.cpp */,
-				E4F3BB1512F4C752002D19BB /* ofTexture.h */,
-				E4F3BB1612F4C752002D19BB /* ofTrueTypeFont.cpp */,
-				E4F3BB1712F4C752002D19BB /* ofTrueTypeFont.h */,
-			);
-			name = graphics;
-			path = ../../../openFrameworks/graphics;
-			sourceTree = SOURCE_ROOT;
-		};
 		E4F3BD2A12F4F8B0002D19BB /* assimp */ = {
 			isa = PBXGroup;
 			children = (
@@ -799,6 +775,42 @@
 			path = ../../../assimp/include/Compiler;
 			sourceTree = SOURCE_ROOT;
 		};
+		E4F3BF4E12F5AE78002D19BB /* graphics */ = {
+			isa = PBXGroup;
+			children = (
+				E4F3BF4F12F5AE78002D19BB /* ofBitmapFont.cpp */,
+				E4F3BF5012F5AE78002D19BB /* ofBitmapFont.h */,
+				E4F3BF5312F5AE78002D19BB /* ofFbo.cpp */,
+				E4F3BF5412F5AE78002D19BB /* ofFbo.h */,
+				E4F3BF5512F5AE78002D19BB /* ofGLRenderer.cpp */,
+				E4F3BF5612F5AE78002D19BB /* ofGLRenderer.h */,
+				E4F3BF5712F5AE78002D19BB /* ofGraphics.cpp */,
+				E4F3BF5812F5AE78002D19BB /* ofGraphics.h */,
+				E4F3BF5912F5AE78002D19BB /* ofImage.cpp */,
+				E4F3BF5A12F5AE78002D19BB /* ofImage.h */,
+				E4F3BF5B12F5AE78002D19BB /* ofPath.cpp */,
+				E4F3BF5C12F5AE78002D19BB /* ofPath.h */,
+				E4F3BF5D12F5AE78002D19BB /* ofPixels.cpp */,
+				E4F3BF5E12F5AE78002D19BB /* ofPixels.h */,
+				E4F3BF5F12F5AE78002D19BB /* ofPixelUtils.cpp */,
+				E4F3BF6012F5AE78002D19BB /* ofPixelUtils.h */,
+				E4F3BF6112F5AE78002D19BB /* ofShader.cpp */,
+				E4F3BF6212F5AE78002D19BB /* ofShader.h */,
+				E4F3BF6312F5AE78002D19BB /* ofShape.cpp */,
+				E4F3BF6412F5AE78002D19BB /* ofShape.h */,
+				E4F3BF6512F5AE78002D19BB /* ofShapeUtils.cpp */,
+				E4F3BF6612F5AE78002D19BB /* ofShapeUtils.h */,
+				E4F3BF6712F5AE78002D19BB /* ofTessellator.cpp */,
+				E4F3BF6812F5AE78002D19BB /* ofTessellator.h */,
+				E4F3BF6912F5AE78002D19BB /* ofTexture.cpp */,
+				E4F3BF6A12F5AE78002D19BB /* ofTexture.h */,
+				E4F3BF6B12F5AE78002D19BB /* ofTrueTypeFont.cpp */,
+				E4F3BF6C12F5AE78002D19BB /* ofTrueTypeFont.h */,
+			);
+			name = graphics;
+			path = ../../../openFrameworks/graphics;
+			sourceTree = SOURCE_ROOT;
+		};
 /* End PBXGroup section */
 
 /* Begin PBXHeadersBuildPhase section */
@@ -849,18 +861,6 @@
 				E4F3BAFA12F4C745002D19BB /* ofThread.h in Headers */,
 				E4F3BAFC12F4C745002D19BB /* ofURLFileLoader.h in Headers */,
 				E4F3BAFE12F4C745002D19BB /* ofUtils.h in Headers */,
-				E4F3BB1912F4C752002D19BB /* ofBitmapFont.h in Headers */,
-				E4F3BB1B12F4C752002D19BB /* ofFbo.h in Headers */,
-				E4F3BB1D12F4C752002D19BB /* ofGraphics.h in Headers */,
-				E4F3BB1F12F4C752002D19BB /* ofImage.h in Headers */,
-				E4F3BB2112F4C752002D19BB /* ofPixels.h in Headers */,
-				E4F3BB2312F4C752002D19BB /* ofPixelUtils.h in Headers */,
-				E4F3BB2512F4C752002D19BB /* ofShader.h in Headers */,
-				E4F3BB2712F4C752002D19BB /* ofShape.h in Headers */,
-				E4F3BB2912F4C752002D19BB /* ofShapeUtils.h in Headers */,
-				E4F3BB2B12F4C752002D19BB /* ofTessellator.h in Headers */,
-				E4F3BB2D12F4C752002D19BB /* ofTexture.h in Headers */,
-				E4F3BB2F12F4C752002D19BB /* ofTrueTypeFont.h in Headers */,
 				E4F3BD2512F4F7BF002D19BB /* ofModel.h in Headers */,
 				E4F3BD2712F4F7BF002D19BB /* ofModelUtils.h in Headers */,
 				E4F3BD5412F4F8B0002D19BB /* aiAnim.h in Headers */,
@@ -894,6 +894,20 @@
 				E4F3BD7012F4F8B0002D19BB /* LogStream.h in Headers */,
 				E4F3BD7112F4F8B0002D19BB /* NullLogger.h in Headers */,
 				E4F3BD7212F4F8B0002D19BB /* ProgressHandler.h in Headers */,
+				E4F3BF6E12F5AE78002D19BB /* ofBitmapFont.h in Headers */,
+				E4F3BF7212F5AE78002D19BB /* ofFbo.h in Headers */,
+				E4F3BF7412F5AE78002D19BB /* ofGLRenderer.h in Headers */,
+				E4F3BF7612F5AE78002D19BB /* ofGraphics.h in Headers */,
+				E4F3BF7812F5AE78002D19BB /* ofImage.h in Headers */,
+				E4F3BF7A12F5AE78002D19BB /* ofPath.h in Headers */,
+				E4F3BF7C12F5AE78002D19BB /* ofPixels.h in Headers */,
+				E4F3BF7E12F5AE78002D19BB /* ofPixelUtils.h in Headers */,
+				E4F3BF8012F5AE78002D19BB /* ofShader.h in Headers */,
+				E4F3BF8212F5AE78002D19BB /* ofShape.h in Headers */,
+				E4F3BF8412F5AE78002D19BB /* ofShapeUtils.h in Headers */,
+				E4F3BF8612F5AE78002D19BB /* ofTessellator.h in Headers */,
+				E4F3BF8812F5AE78002D19BB /* ofTexture.h in Headers */,
+				E4F3BF8A12F5AE78002D19BB /* ofTrueTypeFont.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -990,20 +1004,22 @@
 				E4F3BAF912F4C745002D19BB /* ofThread.cpp in Sources */,
 				E4F3BAFB12F4C745002D19BB /* ofURLFileLoader.cpp in Sources */,
 				E4F3BAFD12F4C745002D19BB /* ofUtils.cpp in Sources */,
-				E4F3BB1812F4C752002D19BB /* ofBitmapFont.cpp in Sources */,
-				E4F3BB1A12F4C752002D19BB /* ofFbo.cpp in Sources */,
-				E4F3BB1C12F4C752002D19BB /* ofGraphics.cpp in Sources */,
-				E4F3BB1E12F4C752002D19BB /* ofImage.cpp in Sources */,
-				E4F3BB2012F4C752002D19BB /* ofPixels.cpp in Sources */,
-				E4F3BB2212F4C752002D19BB /* ofPixelUtils.cpp in Sources */,
-				E4F3BB2412F4C752002D19BB /* ofShader.cpp in Sources */,
-				E4F3BB2612F4C752002D19BB /* ofShape.cpp in Sources */,
-				E4F3BB2812F4C752002D19BB /* ofShapeUtils.cpp in Sources */,
-				E4F3BB2A12F4C752002D19BB /* ofTessellator.cpp in Sources */,
-				E4F3BB2C12F4C752002D19BB /* ofTexture.cpp in Sources */,
-				E4F3BB2E12F4C752002D19BB /* ofTrueTypeFont.cpp in Sources */,
 				E4F3BD2412F4F7BF002D19BB /* ofModel.cpp in Sources */,
 				E4F3BD2612F4F7BF002D19BB /* ofModelUtils.cpp in Sources */,
+				E4F3BF6D12F5AE78002D19BB /* ofBitmapFont.cpp in Sources */,
+				E4F3BF7112F5AE78002D19BB /* ofFbo.cpp in Sources */,
+				E4F3BF7312F5AE78002D19BB /* ofGLRenderer.cpp in Sources */,
+				E4F3BF7512F5AE78002D19BB /* ofGraphics.cpp in Sources */,
+				E4F3BF7712F5AE78002D19BB /* ofImage.cpp in Sources */,
+				E4F3BF7912F5AE78002D19BB /* ofPath.cpp in Sources */,
+				E4F3BF7B12F5AE78002D19BB /* ofPixels.cpp in Sources */,
+				E4F3BF7D12F5AE78002D19BB /* ofPixelUtils.cpp in Sources */,
+				E4F3BF7F12F5AE78002D19BB /* ofShader.cpp in Sources */,
+				E4F3BF8112F5AE78002D19BB /* ofShape.cpp in Sources */,
+				E4F3BF8312F5AE78002D19BB /* ofShapeUtils.cpp in Sources */,
+				E4F3BF8512F5AE78002D19BB /* ofTessellator.cpp in Sources */,
+				E4F3BF8712F5AE78002D19BB /* ofTexture.cpp in Sources */,
+				E4F3BF8912F5AE78002D19BB /* ofTrueTypeFont.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -1402,7 +1402,7 @@ void ofDrawBitmapString(string textString, float x, float y, float z){
 			hasViewport = true;
 			ofPushView();
 			
-			rViewport = ofGetCurrentScreen();			
+			rViewport = ofGetWindowRect();			
 			ofViewport(rViewport);
 			
 			glMatrixMode(GL_PROJECTION);
