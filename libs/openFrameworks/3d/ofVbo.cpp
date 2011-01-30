@@ -5,6 +5,7 @@
 // setVertexData with float* should know about ofVec3f vs ofVec2f?
 
 #include "ofVbo.h"
+#include "ofUtils.h"
 
 
 

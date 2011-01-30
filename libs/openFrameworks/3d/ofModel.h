@@ -2,6 +2,7 @@
 
 #include "ofMesh.h"
 #include "ofUtils.h"
+#include "ofTexture.h"
 
 class ofModel{
 public:

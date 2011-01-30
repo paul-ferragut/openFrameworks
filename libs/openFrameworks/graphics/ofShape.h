@@ -8,17 +8,10 @@
  */
 
 #pragma once
-#include "ofMain.h"
-
-#define DRAW_WITH_MESHIES
-
-#ifdef DRAW_WITH_MESHIES
-/// hack until ofMesh is available
-typedef struct _meshy { GLint mode; vector<ofPoint>vertices; } meshy;
-#else
 #include "ofMesh.h"
-#endif
-
+#include "ofBaseTypes.h"
+#include "ofPoint.h"
+#include <deque>
 
 /** ofPolyline
  
@@ -29,23 +22,54 @@ typedef struct _meshy { GLint mode; vector<ofPoint>vertices; } meshy;
 
 class ofPolyline {
 public:	
+	ofPolyline(){
+		bIs3D = true;
+		bHasChanged = true;
+		bClosed=false;
+	}
+
+	ofPolyline(const vector<ofPoint>& verts){
+		bIs3D = true;
+		bHasChanged = true;
+		bClosed=false;
+		addVertexes(verts);
+	}
 	/// remove all the points
 	void clear() { points.clear(); }
 
 	/// add a vertex
-	void addVertex( const ofPoint& p ) { points.push_back(p); }
-	void addVertexes( const vector<ofPoint>& verts ) { points.insert( points.end(), verts.begin(), verts.end() ); }
-	
-	/// draw as line segments, with the current line style
-	void draw() const;
+	void addVertex( const ofPoint& p ) { points.push_back(p); bHasChanged=true; }
+	void addVertex( float x, float y, float z=0 ) { addVertex(ofPoint(x,y,z)); bHasChanged=true; }
+	void addVertexes( const vector<ofPoint>& verts ) { points.insert( points.end(), verts.begin(), verts.end() );  bHasChanged=true;  }
 
 	/// points vector access
 	size_t size() const { return points.size(); }
-	ofPoint& operator[] (int index) { return points[index]; }
 	const ofPoint& operator[] (int index) const { return points[index]; }
+	ofPoint& operator[] (int index) {  bHasChanged=true; return points[index]; }
 	
 	/// closed
-	void setClosed( bool tf ) { bClosed = tf; }
+	void setClosed( bool tf ) {  bHasChanged=true; bClosed = tf; }
+	bool isClosed() const { return bClosed; }
+	
+	void simplify(float tolerance=0.3);
+
+	void setIs3D(bool bIs3D_){
+		bHasChanged=true;
+		bIs3D = bIs3D_;
+	}
+	bool is3D() const{
+		return bIs3D;
+	}
+	bool hasChanged(){
+		 if(bHasChanged){
+			 bHasChanged=false;
+		 	 return true;
+		 }else{
+			 return false;
+		 }
+	}
+
+	const vector<ofPoint> & getVertices() const{return points;}
 	bool getClosed() const { return bClosed; }
 	
 	float getPerimeter() const;
@@ -53,7 +77,8 @@ public:
 private:
 	vector<ofPoint> points;
 	bool bClosed;
-	
+	bool bIs3D;
+	bool bHasChanged;
 };
 
 
@@ -71,149 +96,125 @@ class ofShape{
 public:
 	
 	ofShape();
-	void setCurveResolution(int numPoints);
+	ofShape(const ofPath & path, int curveResolution=16, bool tesselate=false);
+	~ofShape();
+
 	void clear();
 	
 	/// Add a vertex. Can be used to create straight lines or to specify start points for Bezier or
 	/// Catmull-Rom curves.
 	void addVertex(ofPoint p1);
 	void addVertex( float x, float y, float z=0 ) 
-		{ addVertex( ofPoint( x,y,z ) ); }
+		{ getCurrentSubShape().addVertex( ofPoint( x,y,z ) ); }
+
+	vector<ofPolyline> & getOutline();
 	
-	/// Add a Bezier vertex by specifying ( control point out from previous point, control point in to 
-	/// next point, next point ).
-	void addBezierVertex(ofPoint cp1, ofPoint cp2, ofPoint p);
-	void addBezierVertex( float cp1x, float cp1y, float cp2x, float cp2y, float px, float py )
-		{ addBezierVertex( ofPoint(cp1x,cp1y), ofPoint(cp2x,cp2y), ofPoint(px,py) ); }
-	void addBezierVertex( float cp1x, float cp1y, float cp1z, float cp2x, float cp2y, float cp2z, float px, float py, float pz )
-		{ addBezierVertex( ofPoint(cp1x,cp1y,cp1z), ofPoint(cp2x,cp2y,cp2z), ofPoint(px,py,pz) ); }
-	
-	/// Add a Catmull-Rom curve vertex. You must add a minimum of vertices to make a Catmull-Rom spline, 
-	/// and the first and last points will be used only as control points.
-	void addCurveVertex(ofPoint p);
-	void addCurveVertex( float x, float y, float z=0 ) 
-		{ addCurveVertex( ofPoint( x,y,z ) ); }
+	void addSubShape(const ofShape & shape);
 
 	/// close the shape
 	void close();
-	/// next contour
-	void nextContour( bool bClosePrev=true );
+
+	vector<ofVertexData> & getTessellation();
 
 	/// must call tessellate before calling draw, if the shape has changed
 	void tessellate();
-	void draw();
+	void simplify(float tolerance=0.3);
+	void draw(float x=0, float y=0);
 	
 	/// drawing style
 	/// polygon winding mode for tessellation
 	void setPolyWindingMode( int newMode );
 	/// filled/outline
-	void setFilled( bool bFill ) { bFilled = bFill; bNeedsTessellation = true; }
+	void setFilled( bool bFill );
+	bool isFilled() const { return bFilled; }
 	/// set line + fill color simultaneously
-	void setColor( const ofColor& color ) { setFillColor( color ); setLineColor( color ); }
+	void setColor( const ofColor& color ) { setFillColor( color ); setStrokeColor( color ); }
 	void setHexColor( int hex ) { setColor( ofColor().fromHex( hex ) ); };
 	/// set line color
-	void setLineColor( const ofColor& color ) { lineColor = color; }
-	void setLineHexColor( int hex ) { setLineColor( ofColor().fromHex( hex ) ); };
+	void setStrokeColor( const ofColor& color ) { lineColor = color; }
+	void setStrokeHexColor( int hex ) { setStrokeColor( ofColor().fromHex( hex ) ); };
+	ofColor getStrokeColor(){return lineColor;}
+
+	void setStrokeWidth( float width ) {
+		strokeWidth=width;
+	}
+	float getStrokeWidth(){return strokeWidth;}
+
 	/// set fill color
 	void setFillColor( const ofColor& color ) { fillColor = color; }
 	void setFillHexColor( int hex ) { setFillColor( ofColor().fromHex( hex ) ); };
+	ofColor getFillColor(){return fillColor;}
 	
-private:		
-	
-	typedef enum {
-		OFSHAPE_SEG_LINE,
-		OFSHAPE_SEG_BEZIER,
-		OFSHAPE_SEG_CURVE
-	} segmentType;
-	
-	class ofShapeSegment {
-	public: 
-		
-		ofShapeSegment( segmentType _type ){
-			type = _type;
-		}
-		
-		/// up to you to call the correct function
-		void addSegmentVertex(const ofPoint& p) {
-			points.push_back(p)	;
-		}
-		void addSegmentCurveVertex(const ofPoint& p) {
-			type = OFSHAPE_SEG_CURVE; points.push_back(p);
-		}
-		void addSegmentBezierVertex(const ofPoint& c1, const ofPoint& c2, const ofPoint& p) {
-			type = OFSHAPE_SEG_BEZIER; points.push_back( c1 ); points.push_back( c2 ); points.push_back( p ); 
-		}
+	bool hasOutline() const { return bNeedsOutlineDraw || !bFilled; }
 
-		int getType() const { return type; }
-		const vector<ofPoint>& getPoints() const { return points; }
-		const ofPoint& getPoint( int index ) const { return points[index]; }
-		size_t getNumPoints() const { return points.size(); }
-	private:
-		segmentType type;
-		vector<ofPoint> points;
-	};
-	
-	
-	void curveSegmentToPolyline(const ofShapeSegment & seg, ofPolyline& polyline);
-	void bezierSegmentToPolyline(const ofShapeSegment & seg, ofPolyline& polyline);
-	
+	//any combination of this won't work in all cases, if you need complex shapes
+	//create several objects or use a path and create a shape from it
+	ofShape & newSubShape();
+	void moveTo(const ofPoint & to ){ addVertex(to); }
+	void moveTo(float x, float y, float z=0){
+		addVertex(x,y,z);
+	}
+	void lineTo(const ofPoint & to ){ addVertex(to); }
+	void lineTo(float x, float y, float z=0){
+		addVertex(x,y,z);
+	}
+	void arc( const ofPoint & center, float radiusX, float radiusY, float angleBegin, float angleEnd, int curveResolution=16 );
+	void arc(float x, float y, float radiusX, float radiusY, float angleBegin, float angleEnd, int curveResolution=16){
+		arc(ofPoint(x,y),radiusX,radiusY,angleBegin,angleEnd,curveResolution);
+	}
+	void arc(float x, float y, float z, float radiusX, float radiusY, float angleBegin, float angleEnd, int curveResolution=16){
+		arc(ofPoint(x,y,z),radiusX,radiusY,angleBegin,angleEnd,curveResolution);
+	}
+	void curveTo( const ofPoint & to, int curveResolution=16 );
+	void curveTo(float x, float y, float z=0,  int curveResolution=16 ){
+		curveTo(ofPoint(x,y,z),curveResolution);
+	}
+
+	/// cuadric bezier
+	void bezierTo( const ofPoint & cp1, const ofPoint & cp2, const ofPoint & to, int curveResolution = 16);
+	void bezierTo(float cx1, float cy1, float cx2, float cy2, float x, float y, int curveResolution=16){
+		bezierTo(ofPoint(cx1,cy1),ofPoint(cx2,cy2),ofPoint(x,y));
+	}
+	void bezierTo(float cx1, float cy1, float cz1, float cx2, float cy2, float cz2, float x, float y, float z, int curveResolution=16){
+		bezierTo(ofPoint(cx1,cy1,cz1),ofPoint(cx2,cy2,cz2),ofPoint(x,y,z),curveResolution);
+	}
+
+	/// cubic bezier
+	void quadBezierTo(float cx1, float cy1, float cz1, float cx2, float cy2, float cz2, float x, float y, float z, int curveResolution=16);
+	void quadBezierTo(  const ofPoint & p1, const ofPoint & p2,const ofPoint & p3,  int curveResolution=16 ){
+		quadBezierTo(p1.x,p1.y,p1.z,p2.x,p2.y,p2.z,p3.x,p3.y,p3.z,curveResolution);
+	}
+	void quadBezierTo(float cx1, float cy1, float cx2, float cy2, float x, float y, int curveResolution=16){
+		quadBezierTo(cx1,cy1,0,cx2,cy2,0,x,y,0,curveResolution);
+	}
+
+	void setFrom(const ofPath & path,  int curveResolution=16, bool tesselate=false);
+	void setPolyline(const ofPolyline & polyline);
+private:
+	vector<ofPolyline> & getSubPolylines();
+	void setCircleResolution(int res);
+	ofShape &  getCurrentSubShape();
+
+	// a shape is a polyline + lineColor, fill, windingMode and subshapes
 	ofColor lineColor;
+	float strokeWidth;
 	bool bFilled;
 	ofColor fillColor;
-	
-	// true if this shape should be closed
-	
-	int resolution;
-	vector<vector<ofShapeSegment> > segmentVectors;
-	vector<bool> bShouldClose;
-	
 	int polyWindingMode;
 	bool bNeedsTessellation;
-	vector<ofPolyline> cachedPolylines;
+	ofPolyline polyline;
 	
 	// resulting mesh and outline
+	vector<ofVertexData> cachedTessellation;
 	bool bNeedsOutlineDraw;
-	ofPolyline cachedOutline;
+	vector<ofPolyline> cachedOutline;
 	
-#ifdef DRAW_WITH_MESHIES
-	vector<meshy> cachedMeshies;
-#else
-	ofMesh cachedTessellation;
-#endif
-	
+	vector<ofShape> subShapes;
+
+	ofBaseRenderer * renderer;
+
+	deque<ofPoint> curveVertices;
+	vector<ofPoint> circlePoints;
+
+	bool bIs3D;
 };
-
-
-/** ofShapeCollection
- 
- An ofShapeCollection holds one or more shapes. It knows its own position.
- 
- @author Damian
- */
-/*
-
-class ofShapeCollection
-{
-public:
-	
-	
-	/// add shapes to this collection
-	void addShape( const ofShape& shape, ofPoint relativePosition = ofPoint( 0,0,0 ) );
-	void addShape( const ofShapeCollection& collection, ofPoint relativePosition = ofPoint( 0,0,0 ) );
-	
-	/// set the position (relative to parent) of this shape collection
-	void setPosition( ofPoint position );
-	
-	void draw();
-	
-private:
-	
-	vector<ofShapeCollection> children;
-	
-	ofPoint position;
-	
-};
-*/
-
-
-
