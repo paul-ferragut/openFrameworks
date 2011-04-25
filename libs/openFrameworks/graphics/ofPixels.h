@@ -3,11 +3,22 @@
 #include "ofConstants.h"
 #include "ofUtils.h"
 #include "ofColor.h"
-#include "ofPixelUtils.h"
+//#include "ofPixelUtils.h"
+
+
+
+//---------------------------------------
+enum ofInterpolationMethod {
+	OF_INTERPOLATE_NEAREST_NEIGHBOR =1,
+	OF_INTERPOLATE_BILINEAR			=2,
+	OF_INTERPOLATE_BICUBIC			=3
+};
+
+
 
 class ofPixels {
 
-	friend class ofPixelUtils;
+	//friend class ofPixelUtils;
 
 public:
 
@@ -50,8 +61,24 @@ public:
 
 	ofImageType getImageType() const;
 	int getGlDataType() const;
+	
+	// functions to operate in-place on pixels
+	void crop(int x, int y, int width, int height);
+	void rotate90(int nClockwiseRotations);
+	void mirror(bool vertically, bool horizontal);
+	bool resize(int dstWidth, int dstHeight, ofInterpolationMethod interpMethod=OF_INTERPOLATE_NEAREST_NEIGHBOR);
+	
+	// not in place
+	bool cropFrom(ofPixels &frompix, int x, int y, int width, int height);
+	bool resizeFrom(ofPixels& frompix, ofInterpolationMethod interpMethod=OF_INTERPOLATE_NEAREST_NEIGHBOR);
+
+	
 
 private:
+	
+	
+	static float bicubicInterpolate (const int *patch, float x, float y, float x2,float y2, float x3,float y3);
+	
 	void copyFrom( const ofPixels& mom );
 	
 	
