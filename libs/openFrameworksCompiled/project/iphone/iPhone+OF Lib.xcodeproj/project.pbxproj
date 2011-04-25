@@ -20,11 +20,9 @@
 		BB24DECF10DA7A3F00E9C588 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 288765FC0DF74451002DB57D /* CoreGraphics.framework */; };
 		BB24DED010DA7A3F00E9C588 /* CoreLocation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5326AEA710A23A0500278DE6 /* CoreLocation.framework */; };
 		BB24DED110DA7A3F00E9C588 /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BB16EBD80F2B2AB500518274 /* QuartzCore.framework */; };
-		BB24E0C310DA9F4200E9C588 /* ofxMultiTouch.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BB24E04910DA7C6100E9C588 /* ofxMultiTouch.cpp */; };
 		BB24E0C410DA9F4200E9C588 /* ofxiPhoneKeyboard.h in Headers */ = {isa = PBXBuildFile; fileRef = BB24E03B10DA7C6100E9C588 /* ofxiPhoneKeyboard.h */; };
 		BB24E0C510DA9F4300E9C588 /* ofxiPhoneAppDelegate.h in Headers */ = {isa = PBXBuildFile; fileRef = BB24E03410DA7C6100E9C588 /* ofxiPhoneAppDelegate.h */; };
 		BB24E0C610DA9F4400E9C588 /* ofxiPhoneImagePicker.h in Headers */ = {isa = PBXBuildFile; fileRef = BB24E03910DA7C6100E9C588 /* ofxiPhoneImagePicker.h */; };
-		BB24E0C710DA9F4400E9C588 /* ofxMultiTouchListener.h in Headers */ = {isa = PBXBuildFile; fileRef = BB24E04B10DA7C6100E9C588 /* ofxMultiTouchListener.h */; };
 		BB24E0C810DA9F4500E9C588 /* ofxiPhoneMapKit.mm in Sources */ = {isa = PBXBuildFile; fileRef = BB24E03E10DA7C6100E9C588 /* ofxiPhoneMapKit.mm */; };
 		BB24E0C910DA9F4600E9C588 /* ofxiPhoneCoreLocation.h in Headers */ = {isa = PBXBuildFile; fileRef = BB24E03610DA7C6100E9C588 /* ofxiPhoneCoreLocation.h */; };
 		BB24E0CA10DA9F4600E9C588 /* ofxiPhoneAlertsListener.h in Headers */ = {isa = PBXBuildFile; fileRef = BB24E03210DA7C6100E9C588 /* ofxiPhoneAlertsListener.h */; };
@@ -47,7 +45,6 @@
 		BB24E0DB10DA9F5600E9C588 /* ofxiPhoneAppDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = BB24E03510DA7C6100E9C588 /* ofxiPhoneAppDelegate.mm */; };
 		BB24E0DC10DA9F5700E9C588 /* ofxAccelerometer.h in Headers */ = {isa = PBXBuildFile; fileRef = BB24E02210DA7C6100E9C588 /* ofxAccelerometer.h */; };
 		BB24E0DD10DA9F5800E9C588 /* ofxiPhoneAccelerometer.mm in Sources */ = {isa = PBXBuildFile; fileRef = BB24E02F10DA7C6100E9C588 /* ofxiPhoneAccelerometer.mm */; };
-		BB24E0DE10DA9F5800E9C588 /* ofxMultiTouch.h in Headers */ = {isa = PBXBuildFile; fileRef = BB24E04A10DA7C6100E9C588 /* ofxMultiTouch.h */; };
 		BB24E0E110DA9F5C00E9C588 /* EAGLView.h in Headers */ = {isa = PBXBuildFile; fileRef = BB24E02910DA7C6100E9C588 /* EAGLView.h */; };
 		BB24E0E210DA9F5C00E9C588 /* ofxiPhoneMapKitListener.h in Headers */ = {isa = PBXBuildFile; fileRef = BB24E04110DA7C6100E9C588 /* ofxiPhoneMapKitListener.h */; };
 		BB24E0E310DA9F5D00E9C588 /* ofxiPhoneAlerts.mm in Sources */ = {isa = PBXBuildFile; fileRef = BB24E03110DA7C6100E9C588 /* ofxiPhoneAlerts.mm */; };
@@ -217,6 +214,13 @@
 		E485F7941360A90000E939D3 /* ofVideoPlayer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E485F70B1360A90000E939D3 /* ofVideoPlayer.cpp */; };
 		E485F7951360A90000E939D3 /* ofVideoPlayer.h in Headers */ = {isa = PBXBuildFile; fileRef = E485F70C1360A90000E939D3 /* ofVideoPlayer.h */; };
 		E485F7961360A90000E939D3 /* ofMain.h in Headers */ = {isa = PBXBuildFile; fileRef = E485F70D1360A90000E939D3 /* ofMain.h */; };
+		E485F8191363242200E939D3 /* ofxMultiTouch.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E485F8161363242100E939D3 /* ofxMultiTouch.cpp */; };
+		E485F81A1363242200E939D3 /* ofxMultiTouch.h in Headers */ = {isa = PBXBuildFile; fileRef = E485F8171363242100E939D3 /* ofxMultiTouch.h */; };
+		E485F81B1363242200E939D3 /* ofxMultiTouchListener.h in Headers */ = {isa = PBXBuildFile; fileRef = E485F8181363242100E939D3 /* ofxMultiTouchListener.h */; };
+		E485F8B413632A7300E939D3 /* AVFoundationVideoGrabber.h in Headers */ = {isa = PBXBuildFile; fileRef = E485F8B213632A7300E939D3 /* AVFoundationVideoGrabber.h */; };
+		E485F8B513632A7300E939D3 /* AVFoundationVideoGrabber.mm in Sources */ = {isa = PBXBuildFile; fileRef = E485F8B313632A7300E939D3 /* AVFoundationVideoGrabber.mm */; };
+		E485F8C713632B6600E939D3 /* AVFoundationVideoPlayer.h in Headers */ = {isa = PBXBuildFile; fileRef = E485F8C513632B6600E939D3 /* AVFoundationVideoPlayer.h */; };
+		E485F8C813632B6600E939D3 /* AVFoundationVideoPlayer.mm in Sources */ = {isa = PBXBuildFile; fileRef = E485F8C613632B6600E939D3 /* AVFoundationVideoPlayer.mm */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -312,12 +316,6 @@
 		BB24E04010DA7C6100E9C588 /* ofxiPhoneMapKitDelegate.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = ofxiPhoneMapKitDelegate.mm; sourceTree = "<group>"; };
 		BB24E04110DA7C6100E9C588 /* ofxiPhoneMapKitListener.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ofxiPhoneMapKitListener.h; sourceTree = "<group>"; };
 		BB24E04310DA7C6100E9C588 /* ofxiPhoneSoundStream.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = ofxiPhoneSoundStream.mm; sourceTree = "<group>"; };
-		BB24E04510DA7C6100E9C588 /* changelog.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = changelog.txt; sourceTree = "<group>"; };
-		BB24E04610DA7C6100E9C588 /* install.xml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = install.xml; sourceTree = "<group>"; };
-		BB24E04710DA7C6100E9C588 /* LICENSE.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = LICENSE.txt; sourceTree = "<group>"; };
-		BB24E04910DA7C6100E9C588 /* ofxMultiTouch.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ofxMultiTouch.cpp; sourceTree = "<group>"; };
-		BB24E04A10DA7C6100E9C588 /* ofxMultiTouch.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ofxMultiTouch.h; sourceTree = "<group>"; };
-		BB24E04B10DA7C6100E9C588 /* ofxMultiTouchListener.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ofxMultiTouchListener.h; sourceTree = "<group>"; };
 		BB3140BC11BB09220019348E /* ES1Renderer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ES1Renderer.h; sourceTree = "<group>"; };
 		BB3140BD11BB09220019348E /* ES1Renderer.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = ES1Renderer.mm; sourceTree = "<group>"; };
 		BB3140BE11BB09220019348E /* ES2Renderer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ES2Renderer.h; sourceTree = "<group>"; };
@@ -439,6 +437,13 @@
 		E485F70B1360A90000E939D3 /* ofVideoPlayer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ofVideoPlayer.cpp; path = ../../../openFrameworks/video/ofVideoPlayer.cpp; sourceTree = SOURCE_ROOT; };
 		E485F70C1360A90000E939D3 /* ofVideoPlayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ofVideoPlayer.h; path = ../../../openFrameworks/video/ofVideoPlayer.h; sourceTree = SOURCE_ROOT; };
 		E485F70D1360A90000E939D3 /* ofMain.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ofMain.h; path = ../../../openFrameworks/ofMain.h; sourceTree = SOURCE_ROOT; };
+		E485F8161363242100E939D3 /* ofxMultiTouch.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ofxMultiTouch.cpp; path = ../../../../addons/ofxMultiTouch/src/ofxMultiTouch.cpp; sourceTree = SOURCE_ROOT; };
+		E485F8171363242100E939D3 /* ofxMultiTouch.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ofxMultiTouch.h; path = ../../../../addons/ofxMultiTouch/src/ofxMultiTouch.h; sourceTree = SOURCE_ROOT; };
+		E485F8181363242100E939D3 /* ofxMultiTouchListener.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ofxMultiTouchListener.h; path = ../../../../addons/ofxMultiTouch/src/ofxMultiTouchListener.h; sourceTree = SOURCE_ROOT; };
+		E485F8B213632A7300E939D3 /* AVFoundationVideoGrabber.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AVFoundationVideoGrabber.h; path = ../../../../addons/ofxiPhone/src/AVFoundationVideoGrabber.h; sourceTree = SOURCE_ROOT; };
+		E485F8B313632A7300E939D3 /* AVFoundationVideoGrabber.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = AVFoundationVideoGrabber.mm; path = ../../../../addons/ofxiPhone/src/AVFoundationVideoGrabber.mm; sourceTree = SOURCE_ROOT; };
+		E485F8C513632B6600E939D3 /* AVFoundationVideoPlayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AVFoundationVideoPlayer.h; path = ../../../../addons/ofxiPhone/src/AVFoundationVideoPlayer.h; sourceTree = SOURCE_ROOT; };
+		E485F8C613632B6600E939D3 /* AVFoundationVideoPlayer.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = AVFoundationVideoPlayer.mm; path = ../../../../addons/ofxiPhone/src/AVFoundationVideoPlayer.mm; sourceTree = SOURCE_ROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -515,9 +520,9 @@
 		BB16F26B0F2B646B00518274 /* addons */ = {
 			isa = PBXGroup;
 			children = (
+				E485F8111363242100E939D3 /* ofxMultiTouch */,
 				BB24E01C10DA7C6100E9C588 /* ofxAccelerometer */,
 				BB24E02310DA7C6100E9C588 /* ofxiPhone */,
-				BB24E04410DA7C6100E9C588 /* ofxMultiTouch */,
 			);
 			name = addons;
 			sourceTree = "<group>";
@@ -689,6 +694,10 @@
 		BB24E02810DA7C6100E9C588 /* src */ = {
 			isa = PBXGroup;
 			children = (
+				E485F8B313632A7300E939D3 /* AVFoundationVideoGrabber.mm */,
+				E485F8B213632A7300E939D3 /* AVFoundationVideoGrabber.h */,
+				E485F8C513632B6600E939D3 /* AVFoundationVideoPlayer.h */,
+				E485F8C613632B6600E939D3 /* AVFoundationVideoPlayer.mm */,
 				BB24E02910DA7C6100E9C588 /* EAGLView.h */,
 				BB24E02A10DA7C6100E9C588 /* EAGLView.mm */,
 				BB3140C511BB098A0019348E /* ESRenderer.h */,
@@ -722,28 +731,6 @@
 				BB24E04010DA7C6100E9C588 /* ofxiPhoneMapKitDelegate.mm */,
 				BB24E04110DA7C6100E9C588 /* ofxiPhoneMapKitListener.h */,
 				BB24E04310DA7C6100E9C588 /* ofxiPhoneSoundStream.mm */,
-			);
-			path = src;
-			sourceTree = "<group>";
-		};
-		BB24E04410DA7C6100E9C588 /* ofxMultiTouch */ = {
-			isa = PBXGroup;
-			children = (
-				BB24E04510DA7C6100E9C588 /* changelog.txt */,
-				BB24E04610DA7C6100E9C588 /* install.xml */,
-				BB24E04710DA7C6100E9C588 /* LICENSE.txt */,
-				BB24E04810DA7C6100E9C588 /* src */,
-			);
-			name = ofxMultiTouch;
-			path = ../../../../addons/ofxMultiTouch;
-			sourceTree = SOURCE_ROOT;
-		};
-		BB24E04810DA7C6100E9C588 /* src */ = {
-			isa = PBXGroup;
-			children = (
-				BB24E04910DA7C6100E9C588 /* ofxMultiTouch.cpp */,
-				BB24E04A10DA7C6100E9C588 /* ofxMultiTouch.h */,
-				BB24E04B10DA7C6100E9C588 /* ofxMultiTouchListener.h */,
 			);
 			path = src;
 			sourceTree = "<group>";
@@ -964,6 +951,26 @@
 			path = ../../../openFrameworks/video;
 			sourceTree = SOURCE_ROOT;
 		};
+		E485F8111363242100E939D3 /* ofxMultiTouch */ = {
+			isa = PBXGroup;
+			children = (
+				E485F8151363242100E939D3 /* src */,
+			);
+			name = ofxMultiTouch;
+			path = ../../../../addons/ofxMultiTouch;
+			sourceTree = SOURCE_ROOT;
+		};
+		E485F8151363242100E939D3 /* src */ = {
+			isa = PBXGroup;
+			children = (
+				E485F8161363242100E939D3 /* ofxMultiTouch.cpp */,
+				E485F8171363242100E939D3 /* ofxMultiTouch.h */,
+				E485F8181363242100E939D3 /* ofxMultiTouchListener.h */,
+			);
+			name = src;
+			path = ../../../../addons/ofxMultiTouch/src;
+			sourceTree = SOURCE_ROOT;
+		};
 /* End PBXGroup section */
 
 /* Begin PBXHeadersBuildPhase section */
@@ -974,7 +981,6 @@
 				BB24E0C410DA9F4200E9C588 /* ofxiPhoneKeyboard.h in Headers */,
 				BB24E0C510DA9F4300E9C588 /* ofxiPhoneAppDelegate.h in Headers */,
 				BB24E0C610DA9F4400E9C588 /* ofxiPhoneImagePicker.h in Headers */,
-				BB24E0C710DA9F4400E9C588 /* ofxMultiTouchListener.h in Headers */,
 				BB24E0C910DA9F4600E9C588 /* ofxiPhoneCoreLocation.h in Headers */,
 				BB24E0CA10DA9F4600E9C588 /* ofxiPhoneAlertsListener.h in Headers */,
 				BB24E0CB10DA9F4700E9C588 /* ofxiPhoneMapKit.h in Headers */,
@@ -985,7 +991,6 @@
 				BB24E0D810DA9F5200E9C588 /* ofAppiPhoneWindow.h in Headers */,
 				BB24E0DA10DA9F5500E9C588 /* ofxiPhoneExtras.h in Headers */,
 				BB24E0DC10DA9F5700E9C588 /* ofxAccelerometer.h in Headers */,
-				BB24E0DE10DA9F5800E9C588 /* ofxMultiTouch.h in Headers */,
 				BB24E0E110DA9F5C00E9C588 /* EAGLView.h in Headers */,
 				BB24E0E210DA9F5C00E9C588 /* ofxiPhoneMapKitListener.h in Headers */,
 				BB24E0FC10DA9F7700E9C588 /* ftotval.h in Headers */,
@@ -1101,6 +1106,10 @@
 				E485F7931360A90000E939D3 /* ofVideoGrabber.h in Headers */,
 				E485F7951360A90000E939D3 /* ofVideoPlayer.h in Headers */,
 				E485F7961360A90000E939D3 /* ofMain.h in Headers */,
+				E485F81A1363242200E939D3 /* ofxMultiTouch.h in Headers */,
+				E485F81B1363242200E939D3 /* ofxMultiTouchListener.h in Headers */,
+				E485F8B413632A7300E939D3 /* AVFoundationVideoGrabber.h in Headers */,
+				E485F8C713632B6600E939D3 /* AVFoundationVideoPlayer.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1153,7 +1162,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				BB24E0C310DA9F4200E9C588 /* ofxMultiTouch.cpp in Sources */,
 				BB24E0C810DA9F4500E9C588 /* ofxiPhoneMapKit.mm in Sources */,
 				BB24E0CC10DA9F4800E9C588 /* ofxiPhoneExtras.mm in Sources */,
 				BB24E0CD10DA9F4800E9C588 /* ofxAccelerometer.cpp in Sources */,
@@ -1220,6 +1228,9 @@
 				E485F78B1360A90000E939D3 /* ofiPhoneVideoPlayer.mm in Sources */,
 				E485F7921360A90000E939D3 /* ofVideoGrabber.cpp in Sources */,
 				E485F7941360A90000E939D3 /* ofVideoPlayer.cpp in Sources */,
+				E485F8191363242200E939D3 /* ofxMultiTouch.cpp in Sources */,
+				E485F8B513632A7300E939D3 /* AVFoundationVideoGrabber.mm in Sources */,
+				E485F8C813632B6600E939D3 /* AVFoundationVideoPlayer.mm in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1235,10 +1246,15 @@
 				EXECUTABLE_PREFIX = lib;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_OPTIMIZATION_LEVEL = 0;
-				IPHONEOS_DEPLOYMENT_TARGET = 3.1;
+				GCC_WARN_HIDDEN_VIRTUAL_FUNCTIONS = YES;
+				GCC_WARN_NON_VIRTUAL_DESTRUCTOR = YES;
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"\"$(SRCROOT)/kiss/lib/linux\"",
+					"\"$(SRCROOT)/kiss/lib/linux64\"",
+				);
 				PREBINDING = NO;
 				PRODUCT_NAME = "ofxiPhone_${PLATFORM_NAME}_Debug";
-				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Debug;
 		};
@@ -1251,10 +1267,15 @@
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				EXECUTABLE_PREFIX = lib;
 				GCC_ENABLE_FIX_AND_CONTINUE = NO;
-				IPHONEOS_DEPLOYMENT_TARGET = 3.1;
+				GCC_WARN_HIDDEN_VIRTUAL_FUNCTIONS = YES;
+				GCC_WARN_NON_VIRTUAL_DESTRUCTOR = YES;
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"\"$(SRCROOT)/kiss/lib/linux\"",
+					"\"$(SRCROOT)/kiss/lib/linux64\"",
+				);
 				PREBINDING = NO;
 				PRODUCT_NAME = "ofxiPhone_${PLATFORM_NAME}_Release";
-				TARGETED_DEVICE_FAMILY = "1,2";
 				ZERO_LINK = NO;
 			};
 			name = Release;
@@ -1275,7 +1296,8 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 3.2;
 				OTHER_LDFLAGS = "";
 				PREBINDING = NO;
-				SDKROOT = iphoneos;
+				SDKROOT = iphoneos4.1;
+				TARGETED_DEVICE_FAMILY = "1,2";
 				WARNING_LDFLAGS = "-w";
 			};
 			name = Debug;
@@ -1293,8 +1315,10 @@
 					../../../../libs/freetype/include/,
 					../../../../libs/freetype/include/freetype2,
 				);
+				IPHONEOS_DEPLOYMENT_TARGET = 3.2;
 				PREBINDING = NO;
 				SDKROOT = iphoneos4.1;
+				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Release;
 		};
@@ -1311,8 +1335,10 @@
 					../../../../libs/freetype/include/,
 					../../../../libs/freetype/include/freetype2,
 				);
+				IPHONEOS_DEPLOYMENT_TARGET = 3.2;
 				PREBINDING = NO;
 				SDKROOT = iphoneos4.1;
+				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = ReleaseArmv7;
 		};
@@ -1325,10 +1351,15 @@
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				EXECUTABLE_PREFIX = lib;
 				GCC_ENABLE_FIX_AND_CONTINUE = NO;
-				IPHONEOS_DEPLOYMENT_TARGET = 3.1;
+				GCC_WARN_HIDDEN_VIRTUAL_FUNCTIONS = YES;
+				GCC_WARN_NON_VIRTUAL_DESTRUCTOR = YES;
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"\"$(SRCROOT)/kiss/lib/linux\"",
+					"\"$(SRCROOT)/kiss/lib/linux64\"",
+				);
 				PREBINDING = NO;
 				PRODUCT_NAME = "ofxiPhone_${PLATFORM_NAME}_ReleaseArmv7";
-				TARGETED_DEVICE_FAMILY = "1,2";
 				ZERO_LINK = NO;
 			};
 			name = ReleaseArmv7;
