@@ -7,321 +7,339 @@
  *
  */
 
+
 #include "ofLight.h"
 #include "ofConstants.h"
 #include "ofLog.h"
 #include "ofUtils.h"
 #include <map>
 
+static ofFloatColor globalAmbient(0.2, 0.2, 0.2, 1.0);
 
 //----------------------------------------
 void ofEnableLighting() {
-	glEnable(GL_LIGHTING);
-#ifndef TARGET_OPENGLES  //TODO: fix this
-	glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE);
-#endif
-	glEnable(GL_COLOR_MATERIAL);
+	ofGetGLRenderer()->enableLighting();
 }
 
 //----------------------------------------
 void ofDisableLighting() {
-	glDisable(GL_LIGHTING);
+	ofGetGLRenderer()->disableLighting();
 }
 
 //----------------------------------------
 void ofEnableSeparateSpecularLight(){
-#ifndef TARGET_OPENGLES
-	glLightModeli (GL_LIGHT_MODEL_COLOR_CONTROL,GL_SEPARATE_SPECULAR_COLOR);
-#endif
+	ofGetGLRenderer()->enableSeparateSpecularLight();
 }
 
 //----------------------------------------
 void ofDisableSeparateSpecularLight(){
-#ifndef TARGET_OPENGLES
-	glLightModeli (GL_LIGHT_MODEL_COLOR_CONTROL,GL_SINGLE_COLOR);
-#endif
+    ofGetGLRenderer()->disableSeparateSpecularLight();
 }
 
 //----------------------------------------
 bool ofGetLightingEnabled() {
-	return glIsEnabled(GL_LIGHTING);
+	return ofGetGLRenderer()->getLightingEnabled();
 }
 
 //----------------------------------------
 void ofSetSmoothLighting(bool b) {
-	if (b) glShadeModel(GL_SMOOTH);
-	else glShadeModel(GL_FLAT);
+	ofGetGLRenderer()->setSmoothLighting(b);
 }
 
 //----------------------------------------
-void ofSetGlobalAmbientColor(const ofColor& c) {
-	GLfloat cc[] = {c.r/255.f, c.g/255.f, c.b/255.f, c.a/255.f};
-	glLightModelfv(GL_LIGHT_MODEL_AMBIENT, cc);
+void ofSetGlobalAmbientColor(const ofFloatColor& c) {
+	ofGetGLRenderer()->setGlobalAmbientColor(c);
+	globalAmbient = c;
+}
+
+const ofFloatColor & ofGetGlobalAmbientColor(){
+	return globalAmbient;
 }
 
 //----------------------------------------
-bool* getActiveLights(){
-	static bool * lightsActive = new bool[OF_MAX_LIGHTS];
-	static bool lightsActiveInited = false;
-	// if array hasn't been inited to false, init it
-	if(lightsActiveInited == false) {
-		for(int i=0; i<OF_MAX_LIGHTS; i++) lightsActive[i] = false;
-		lightsActiveInited = true;
-	}
-	return lightsActive;
+vector<weak_ptr<ofLight::Data> > & ofLightsData(){
+	static vector<weak_ptr<ofLight::Data> > * lightsActive = ofIsGLProgrammableRenderer()?new vector<weak_ptr<ofLight::Data> >:new vector<weak_ptr<ofLight::Data> >(8);
+	return *lightsActive;
 }
 
-//--------------------------------------------------------------
-static map<GLuint,int> & getIds(){
-	static map<GLuint,int> * ids = new map<GLuint,int>;
-	return *ids;
-}
-
-//--------------------------------------------------------------
-static void retain(int id){
-	if(id==-1) return;
-	getActiveLights()[id] = true;
-	if(getIds().find(id)!=getIds().end()){
-		getIds()[id]++;
-	}else{
-		getIds()[id]=1;
-	}
-}
-
-//--------------------------------------------------------------
-static void release(ofLight & light){
-	int id = light.getLightID();
-	if(id==-1) return;
-	bool lastRef=false;
-	if(getIds().find(id)!=getIds().end()){
-		getIds()[id]--;
-		if(getIds()[id]==0){
-			lastRef=true;
-			getIds().erase(id);
-		}
-	}else{
-		ofLog(OF_LOG_WARNING,"ofLight: releasing id not found, this shouldn't be happening releasing anyway");
-		lastRef=true;
-	}
-	if(lastRef){
-		light.setAmbientColor(ofColor(0,0,0,255));
-		if(id>0){
-			light.setDiffuseColor(ofColor(0,0,0,255));
-			light.setSpecularColor(ofColor(0,0,0,255));
-		}else{
-			light.setDiffuseColor(ofColor(255,255,255,255));
-			light.setSpecularColor(ofColor(255,255,255,255));
-		}
-		GLfloat cc[] = {0,0,1, 0};
-		glLightfv(GL_LIGHT0 + id, GL_POSITION, cc);
-
-		light.disable();
-		getActiveLights()[id] = false;
-	}
-}
-
-//----------------------------------------
-ofLight::ofLight(){
+ofLight::Data::Data(){
 	glIndex			= -1;
 	isEnabled		= false;
+	attenuation_constant = 0.000001;
+	attenuation_linear = 0.000001;
+	attenuation_quadratic = 0.000001;
+	spotCutOff = 45;
+	exponent = 16;
+	width = 1;
+	height = 1;
+	lightType = OF_LIGHT_POINT;
+}
+
+ofLight::Data::~Data(){
+	if(glIndex==-1) return;
+	ofGetGLRenderer()->setLightAmbientColor(glIndex,ofColor(0,0,0,255));
+	ofGetGLRenderer()->setLightDiffuseColor(glIndex,ofColor(0,0,0,255));
+	ofGetGLRenderer()->setLightSpecularColor(glIndex,ofColor(0,0,0,255));
+	ofGetGLRenderer()->setLightPosition(glIndex,glm::vec4(0,0,1,0));
+	ofGetGLRenderer()->disableLight(glIndex);
+}
+
+//----------------------------------------
+ofLight::ofLight()
+:data(new Data){
+    setAmbientColor(ofColor(0,0,0));
+    setDiffuseColor(ofColor(255,255,255));
+    setSpecularColor(ofColor(255,255,255));
 	setPointLight();
+    
+    // assume default attenuation factors //
+    setAttenuation(1.f,0.f,0.f);
 }
 
 //----------------------------------------
-ofLight::~ofLight(){
-	destroy();
-}
-
-//----------------------------------------
-void ofLight::destroy(){
-	release(*this);
-}
-
-//----------------------------------------
-ofLight::ofLight(const ofLight & mom){
-	ambientColor	= mom.ambientColor;
-	diffuseColor	= mom.diffuseColor;
-	specularColor	= mom.specularColor;
-
-	glIndex = mom.glIndex;
-	retain(glIndex);
-	isEnabled		= mom.isEnabled;
-	isDirectional	= mom.isDirectional;
-	isSpotlight		= mom.isSpotlight;
-	lightType		= mom.lightType;
-}
-
-//----------------------------------------
-ofLight & ofLight::operator=(const ofLight & mom){
-	if(&mom == this) return *this;
-	ambientColor = mom.ambientColor;
-	diffuseColor = mom.diffuseColor;
-	specularColor = mom.specularColor;
-
-	glIndex = mom.glIndex;
-	retain(glIndex);
-	isEnabled		= mom.isEnabled;
-	isDirectional	= mom.isDirectional;
-	isSpotlight		= mom.isSpotlight;
-	lightType		= mom.lightType;
-	return *this;
-}
-
-//----------------------------------------
-void ofLight::enable() {
-	if(glIndex==-1){
+void ofLight::setup() {
+    if(data->glIndex==-1){
 		bool bLightFound = false;
 		// search for the first free block
-		for(int i=0; i<OF_MAX_LIGHTS; i++) {
-			if(getActiveLights()[i] == false) {
-				glIndex = i;
-				retain(glIndex);
+		for(size_t i=0; i<ofLightsData().size(); i++) {
+			if(ofLightsData()[i].expired()) {
+				data->glIndex = i;
+				data->isEnabled = true;
+				ofLightsData()[i] = data;
 				bLightFound = true;
 				break;
 			}
 		}
-		if( !bLightFound ){
-			ofLog(OF_LOG_ERROR, "ofLight : Trying to create too many lights: " + ofToString(glIndex));
+		if(!bLightFound && ofIsGLProgrammableRenderer()){
+			ofLightsData().push_back(data);
+			data->glIndex = ofLightsData().size() - 1;
+			data->isEnabled = true;
+			bLightFound = true;
 		}
+		if( bLightFound ){
+            // run this the first time, since it was not found before //
+            onPositionChanged();
+            setAmbientColor( getAmbientColor() );
+            setDiffuseColor( getDiffuseColor() );
+            setSpecularColor( getSpecularColor() );
+            setAttenuation( getAttenuationConstant(), getAttenuationLinear(), getAttenuationQuadratic() );
+            if(getIsSpotlight()) {
+                setSpotlightCutOff(getSpotlightCutOff());
+                setSpotConcentration(getSpotConcentration());
+            }
+            if(getIsSpotlight() || getIsDirectional()) {
+                onOrientationChanged();
+            }
+        }else{
+        	ofLogError("ofLight") << "setup(): couldn't get active GL light, maximum number of "<< ofLightsData().size() << " reached";
+        }
 	}
-	
-	ofEnableLighting();
-	glEnable(GL_LIGHT0 + glIndex);
+}
+
+//----------------------------------------
+void ofLight::enable() {
+    setup();
+	data->isEnabled = true;
+    onPositionChanged(); // update the position //
+	onOrientationChanged();
+	ofGetGLRenderer()->enableLight(data->glIndex);
 }
 
 //----------------------------------------
 void ofLight::disable() {
-	if(glIndex!=-1) {
-		glDisable(GL_LIGHT0 + glIndex);
-	}
+	data->isEnabled = false;
+	ofGetGLRenderer()->disableLight(data->glIndex);
 }
 
 //----------------------------------------
 int ofLight::getLightID() const{
-	return glIndex;
+	return data->glIndex;
 }
 
 //----------------------------------------
 bool ofLight::getIsEnabled() const {
-	return isEnabled;
+	return data->isEnabled;
 }
 
 //----------------------------------------
 void ofLight::setDirectional() {
-	isDirectional	= true;
-	isSpotlight		= false;
-	lightType		= OF_LIGHT_DIRECTIONAL;
+	data->lightType	= OF_LIGHT_DIRECTIONAL;
 }
 
 //----------------------------------------
 bool ofLight::getIsDirectional() const {
-	return isDirectional;
+	return data->lightType == OF_LIGHT_DIRECTIONAL;
 }
 
 //----------------------------------------
 void ofLight::setSpotlight(float spotCutOff, float exponent) {
-	isDirectional	= false;
-	isSpotlight		= true;
-	lightType		= OF_LIGHT_SPOT;
+	data->lightType		= OF_LIGHT_SPOT;
 	setSpotlightCutOff( spotCutOff );
 	setSpotConcentration( exponent );
 }
 
 //----------------------------------------
-bool ofLight::getIsSpotlight() {
-	return isSpotlight;
+bool ofLight::getIsSpotlight() const{
+	return data->lightType == OF_LIGHT_SPOT;
 }
 
 //----------------------------------------
 void ofLight::setSpotlightCutOff( float spotCutOff ) {
-	glLightf(GL_LIGHT0 + glIndex, GL_SPOT_CUTOFF, CLAMP(spotCutOff, 0, 90) );
+    data->spotCutOff = CLAMP(spotCutOff, 0, 90);
+    ofGetGLRenderer()->setLightSpotlightCutOff(data->glIndex, spotCutOff);
+}
+
+//----------------------------------------
+float ofLight::getSpotlightCutOff() const{
+    if(!getIsSpotlight()) {
+        ofLogWarning("ofLight") << "getSpotlightCutOff(): light " << data->glIndex << " is not a spot light";
+    }
+    return data->spotCutOff;
 }
 
 //----------------------------------------
 void ofLight::setSpotConcentration( float exponent ) {
-	glLightf(GL_LIGHT0 + glIndex, GL_SPOT_EXPONENT, exponent);
+    data->exponent = CLAMP(exponent, 0, 128);
+	ofGetGLRenderer()->setLightSpotConcentration(data->glIndex, exponent);
+}
+
+//----------------------------------------
+float ofLight::getSpotConcentration() const{
+    if(!getIsSpotlight()) {
+        ofLogWarning("ofLight") << "getSpotConcentration(): light " << data->glIndex << " is not a spot light";
+    }
+    return data->exponent;
 }
 
 //----------------------------------------
 void ofLight::setPointLight() {
-	isDirectional	= false;
-	isSpotlight	= false;
-	lightType	= OF_LIGHT_POINT;
+	data->lightType	= OF_LIGHT_POINT;
 }
 
 //----------------------------------------
-bool ofLight::getIsPointLight() {
-	return (!isDirectional && !isSpotlight);
+bool ofLight::getIsPointLight() const{
+	return data->lightType == OF_LIGHT_POINT;
 }
 
 //----------------------------------------
 void ofLight::setAttenuation( float constant, float linear, float quadratic ) {
-	glLightf(GL_LIGHT0 + glIndex, GL_CONSTANT_ATTENUATION, constant);
-	glLightf(GL_LIGHT0 + glIndex, GL_LINEAR_ATTENUATION, linear);
-	glLightf(GL_LIGHT0 + glIndex, GL_QUADRATIC_ATTENUATION, quadratic);
+    // falloff = 0 -> 1, 0 being least amount of fallof, 1.0 being most //
+	data->attenuation_constant    = constant;
+	data->attenuation_linear      = linear;
+	data->attenuation_quadratic   = quadratic;
+
+    ofGetGLRenderer()->setLightAttenuation(data->glIndex, constant, linear, quadratic);
 }
 
 //----------------------------------------
-int ofLight::getType() {
-	return lightType;
+float ofLight::getAttenuationConstant() const{
+    return data->attenuation_constant;
+}
+
+//----------------------------------------
+float ofLight::getAttenuationLinear() const{
+    return data->attenuation_linear;
+}
+
+//----------------------------------------
+float ofLight::getAttenuationQuadratic() const{
+    return data->attenuation_quadratic;
+}
+
+void ofLight::setAreaLight(float width, float height){
+	data->lightType = OF_LIGHT_AREA;
+	data->width = width;
+	data->height = height;
+}
+
+bool ofLight::getIsAreaLight() const{
+	return data->lightType == OF_LIGHT_AREA;
+}
+
+//----------------------------------------
+int ofLight::getType() const{
+	return data->lightType;
 }
 
 //----------------------------------------
 void ofLight::setAmbientColor(const ofFloatColor& c) {
-	if(glIndex==-1) return;
-	glLightfv(GL_LIGHT0 + glIndex, GL_AMBIENT, &ambientColor.r);
+	data->ambientColor = c;
+	ofGetGLRenderer()->setLightAmbientColor(data->glIndex, c);
 }
 
 //----------------------------------------
 void ofLight::setDiffuseColor(const ofFloatColor& c) {
-	if(glIndex==-1) return;
-	glLightfv(GL_LIGHT0 + glIndex, GL_DIFFUSE, &diffuseColor.r);
+	data->diffuseColor = c;
+	ofGetGLRenderer()->setLightDiffuseColor(data->glIndex, c);
 }
 
 //----------------------------------------
 void ofLight::setSpecularColor(const ofFloatColor& c) {
-	if(glIndex==-1) return;
-	glLightfv(GL_LIGHT0 + glIndex, GL_SPECULAR, &specularColor.r);
+	data->specularColor = c;
+	ofGetGLRenderer()->setLightSpecularColor(data->glIndex, c);
 }
 
 //----------------------------------------
 ofFloatColor ofLight::getAmbientColor() const {
-	return ambientColor;
+	return data->ambientColor;
 }
 
 //----------------------------------------
 ofFloatColor ofLight::getDiffuseColor() const {
-	return diffuseColor;
+	return data->diffuseColor;
 }
 
 //----------------------------------------
 ofFloatColor ofLight::getSpecularColor() const {
-	return specularColor;
+	return data->specularColor;
+}
+
+//----------------------------------------
+void ofLight::customDraw(const ofBaseRenderer * renderer) const{;
+    if(getIsPointLight()) {
+        renderer->drawSphere( 0,0,0, 10);
+    } else if (getIsSpotlight()) {
+        float coneHeight = (sin(data->spotCutOff*DEG_TO_RAD) * 30.f) + 1;
+        float coneRadius = (cos(data->spotCutOff*DEG_TO_RAD) * 30.f) + 8;
+		const_cast<ofBaseRenderer*>(renderer)->rotateDeg(-90,1,0,0);
+		renderer->drawCone(0, -(coneHeight*.5), 0, coneHeight, coneRadius);
+    } else  if (getIsAreaLight()) {
+    	const_cast<ofBaseRenderer*>(renderer)->pushMatrix();
+		renderer->drawPlane(data->width,data->height);
+		const_cast<ofBaseRenderer*>(renderer)->popMatrix();
+    }else{
+        renderer->drawBox(10);
+    }
+    ofDrawAxis(20);
 }
 
 
 //----------------------------------------
 void ofLight::onPositionChanged() {
-	if(glIndex==-1) return;
+	if(data->glIndex==-1) return;
 	// if we are a positional light and not directional, update light position
-	if(isDirectional == false) {
-		GLfloat cc[] = {getPosition().x, getPosition().y, getPosition().z, 1};
-		glLightfv(GL_LIGHT0 + glIndex, GL_POSITION, cc);
+	if(getIsSpotlight() || getIsPointLight() || getIsAreaLight()) {
+		data->position = {getGlobalPosition().x, getGlobalPosition().y, getGlobalPosition().z, 1.f};
+		ofGetGLRenderer()->setLightPosition(data->glIndex, data->position);
 	}
 }
 
 //----------------------------------------
 void ofLight::onOrientationChanged() {
-	if(glIndex==-1) return;
-	// if we are a directional light and not positional, update light position (direction)
-	if(isDirectional == true) {
-		GLfloat cc[] = {getLookAtDir().x, getLookAtDir().y, getLookAtDir().z, 0};
-		glLightfv(GL_LIGHT0 + glIndex, GL_POSITION, cc);
-	} else {
-		if(isSpotlight) {
-			// determines the axis of the cone light //
-			GLfloat spot_direction[] = { getLookAtDir().x, getLookAtDir().y, getLookAtDir().z, 1.0 };
-			glLightfv(GL_LIGHT0 + glIndex, GL_SPOT_DIRECTION, spot_direction);
-		}
+	if(data->glIndex==-1) return;
+	if(getIsDirectional()) {
+		// if we are a directional light and not positional, update light position (direction)
+		auto lookAtDir = glm::normalize(getGlobalOrientation() * glm::vec4(0,0,-1, 1)).xyz();
+		data->position = {lookAtDir.x,lookAtDir.y,lookAtDir.z,0.f};
+		ofGetGLRenderer()->setLightPosition(data->glIndex,data->position);
+	}else if(getIsSpotlight() || getIsAreaLight()) {
+		// determines the axis of the cone light
+		auto lookAtDir = glm::normalize(getGlobalOrientation() * glm::vec4(0,0,-1, 1)).xyz();
+		data->direction = lookAtDir;
+		ofGetGLRenderer()->setLightSpotDirection(data->glIndex, glm::vec4(data->direction, 0.0f));
+	}
+	if(getIsAreaLight()){
+		data->up = getUpDir();
+		data->right = getXAxis();
 	}
 }

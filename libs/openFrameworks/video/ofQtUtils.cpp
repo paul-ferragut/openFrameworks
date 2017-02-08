@@ -1,6 +1,8 @@
 #include "ofQtUtils.h"
 
-#if defined (TARGET_WIN32) || defined (TARGET_OSX)
+#if defined (TARGET_WIN32) || (defined TARGET_OSX && !defined(MAC_OS_X_VERSION_10_7))
+#if !defined(MAC_OS_X_VERSION_10_12) || MAC_OS_X_VERSION_MAX_ALLOWED < MAC_OS_X_VERSION_10_12
+
 #include "ofUtils.h"
 #include "ofGraphics.h"
 static bool bQuicktimeInitialized = false;
@@ -18,15 +20,15 @@ void initializeQuicktime(){
 		#ifdef TARGET_WIN32
 			myErr = InitializeQTML(0);
 			if (myErr != noErr){
-				ofLog(OF_LOG_ERROR, "-----------------------------------------------------");
-				ofLog(OF_LOG_ERROR, "sorry, there is a problem with quicktime starting up... please check!");
+				ofLogFatalError("ofQtUtils.h") << "------------------------------------------------------";
+				ofLogFatalError("ofQtUtils.h") << "sorry, there wasa problem initing quicktime... exiting";
                 OF_EXIT_APP(0);
 			}
 		#endif
 		myErr = EnterMovies ();
 		if (myErr != noErr){
-			ofLog(OF_LOG_ERROR, "-----------------------------------------------------");
-			ofLog(OF_LOG_ERROR, "sorry, there is a problem with quicktime starting up... please check!");
+			ofLogFatalError("ofQtUtils.h") << "------------------------------------------------------";
+			ofLogFatalError("ofQtUtils.h") << "sorry, there is a problem initing quicktime... exiting";
 			OF_EXIT_APP(0);
 		}
 
@@ -151,7 +153,9 @@ void MovieGetStaticFrameRate(Movie inMovie, double *outStaticFrameRate)
       else  /* working with non-MPEG-1/MPEG-2 media */
       {
         OSErr err = MediaGetStaticFrameRate(movieMedia, outStaticFrameRate);
-        if (err != noErr) ofLog(OF_LOG_ERROR, "error in MediaGetStaticFrameRate, ofQtUtils");
+        if (err != noErr) {
+			ofLogError("ofQtUtils") << "MovieGetStaticFrameRate(): couldn't get static frame rate: OSErr " << err;
+		}
         //assert(err == noErr);
       }
     }
@@ -168,13 +172,13 @@ this media.
 void MovieGetVideoMediaAndMediaHandler(Movie inMovie, Media *outMedia, MediaHandler *outMediaHandler)
 {
 
-  *outMedia = NULL;
-  *outMediaHandler = NULL;
+  *outMedia = nullptr;
+  *outMediaHandler = nullptr;
 
   /* get first video track */
   Track videoTrack = GetMovieIndTrackType(inMovie, 1, kCharacteristicHasVideoFrameRate,
               movieTrackCharacteristic | movieTrackEnabledOnly);
-  if (videoTrack != NULL)
+  if (videoTrack != nullptr)
   {
     /* get media ref. for track's sample data */
     *outMedia = GetTrackMedia(videoTrack);
@@ -280,8 +284,8 @@ OSErr MediaGetStaticFrameRate(Media inMovieMedia, double *outFPS)
 OSErr GetSettingsPreference(CFStringRef inKey, UserData *outUserData)
 {
   CFPropertyListRef theCFSettings;
-  Handle            theHandle = NULL;
-  UserData          theUserData = NULL;
+  Handle            theHandle = nullptr;
+  UserData          theUserData = nullptr;
   OSErr             err = paramErr;
 
   // read the new setttings from our preferences
@@ -313,7 +317,7 @@ OSErr SaveSettingsPreference(CFStringRef inKey, UserData inUserData)
   Handle    hSettings;
   OSErr     err;
 
-  if (NULL == inUserData) return paramErr;
+  if (nullptr == inUserData) return paramErr;
 
   hSettings = NewHandle(0);
   err = MemError();
@@ -345,3 +349,4 @@ OSErr SaveSettingsPreference(CFStringRef inKey, UserData inUserData)
 #endif
 
 #endif
+#endif 

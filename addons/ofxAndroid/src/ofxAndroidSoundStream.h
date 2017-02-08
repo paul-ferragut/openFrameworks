@@ -1,60 +1,63 @@
 #pragma once
 
 #include <jni.h>
-#include <queue>
 
 #include "ofConstants.h"
 #include "ofBaseSoundStream.h"
 #include "ofxAndroidCircBuffer.h"
+#include "ofSoundBuffer.h"
 
 class ofxAndroidSoundStream : public ofBaseSoundStream{
 	public:
 		ofxAndroidSoundStream();
-		virtual ~ofxAndroidSoundStream();
-		
-		void listDevices();
+        ~ofxAndroidSoundStream();
+
+		std::vector<ofSoundDevice> getDeviceList(ofSoundDevice::Api api) const;
 		void setDeviceID(int deviceID);
 
 		void setInput(ofBaseSoundInput * soundInput);
 		void setOutput(ofBaseSoundOutput * soundOutput);
-		bool setup(int outChannels, int inChannels, int sampleRate, int bufferSize, int nBuffers);
-		bool setup(ofBaseApp * app, int outChannels, int inChannels, int sampleRate, int bufferSize, int nBuffers);
+		bool setup(const ofSoundStreamSettings & settings);
 		
 		void start();
 		void stop();
 		void close();
-		
-		long unsigned long getTickCount();		
-				
-		int getNumInputChannels();
-		int getNumOutputChannels();
+
+		uint64_t getTickCount() const;
+
+		ofSoundDevice getInDevice() const{ return ofSoundDevice(); }
+		ofSoundDevice getOutDevice() const{ return ofSoundDevice(); }
+		int getNumInputChannels() const;
+		int getNumOutputChannels() const;
+		int getSampleRate() const;
+		int getBufferSize() const;
 
 		int androidInputAudioCallback(JNIEnv*  env, jobject  thiz,jshortArray array, jint numChannels, jint bufferSize);
 		int androidOutputAudioCallback(JNIEnv*  env, jobject  thiz,jshortArray array, jint numChannels, jint bufferSize);
 		
-		int getMinOutBufferSize(int samplerate, int nchannels);
-		int getMinInBufferSize(int samplerate, int nchannels);
+		int getMinOutBufferSize(int samplerate, int nchannels) const;
+		int getMinInBufferSize(int samplerate, int nchannels) const;
 
-		bool isHeadPhonesConnected();
+		bool isHeadPhonesConnected() const;
 
 		ofEvent<bool> headphonesConnectedE;
 
 	private:
 		long unsigned long	tickCount;
-		int					sampleRate;
+		// pointers to OF audio callback classes
 		ofBaseSoundInput *  soundInputPtr;
 		ofBaseSoundOutput * soundOutputPtr;
 		
 		ofxAndroidCircBuffer<float> input_buffer;
 
-
+		// 16-bits integers buffers used for Android PCM data
 		short * out_buffer, * in_buffer;
-		float * out_float_buffer, * in_float_buffer;
-		int outBufferSize, outChannels, inBufferSize, inChannels;
+		// 32-bits float buffers used by OF audio callbacks
+		ofSoundBuffer in_float_buffer, out_float_buffer;
+		//
 		int  requestedBufferSize;
 		int  totalOutRequestedBufferSize;
 		int  totalInRequestedBufferSize;
-		jshortArray jInArray, jOutArray;
 
 		bool isPaused;
 
@@ -63,5 +66,3 @@ class ofxAndroidSoundStream : public ofBaseSoundStream{
 		void pause();
 		void resume();
 };
-
-

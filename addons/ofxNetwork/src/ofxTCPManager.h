@@ -1,6 +1,4 @@
-#ifndef  ___ofxTCPManager__H__
-#define  ___ofxTCPManager__H__
-
+#pragma once
 
 //////////////////////////////////////////////////////////////////////////////////////
 // Original author: ???????? we think Christian Naglhofer
@@ -68,7 +66,7 @@ SetTimeoutReceive()
 	#include <sys/ioctl.h>
 
 #ifndef TARGET_ANDROID
-    #include <sys/signal.h>
+	#include <sys/signal.h>
 #else
 	#include <signal.h>
 #endif
@@ -177,22 +175,25 @@ public:
 	bool Close();
 	bool Create();
 	bool Listen(int iMaxConnections);
-	bool Connect(char *pAddrStr, unsigned short usPort);
+	bool Connect(const char *pAddrStr, unsigned short usPort);
 	bool Bind(unsigned short usPort);
 	bool Accept(ofxTCPManager& sock);
 	//sends the data, but it is not guaranteed that really all data will be sent
 	int  Send(const char* pBuff, const int iSize);
 	//all data will be sent guaranteed.
 	int  SendAll(const char* pBuff, const int iSize);
+	int  PeekReceive(char* pBuff, const int iSize);
 	int  Receive(char* pBuff, const int iSize);
 	int  ReceiveAll(char* pBuff, const int iSize);
 	int  Write(const char* pBuff, const int iSize);
 	bool GetRemoteAddr(LPINETADDR pIntAddr);
 	bool GetInetAddr(LPINETADDR pInetAddr);
-	void SetTimeoutSend(int timeoutInSeconds);
+	void SetTimeoutConnect(int timeoutInSeconds);
+    void SetTimeoutSend(int timeoutInSeconds);
 	void SetTimeoutReceive(int timeoutInSeconds);
 	void SetTimeoutAccept(int timeoutInSeconds);
-	int  GetTimeoutSend();
+	int  GetTimeoutConnect();
+    int  GetTimeoutSend();
 	int  GetTimeoutReceive();
 	int  GetTimeoutAccept();
 	bool SetReceiveBufferSize(int sizeInByte);
@@ -201,10 +202,21 @@ public:
 	int  GetSendBufferSize();
 	int  GetMaxConnections();
 	bool SetNonBlocking(bool useNonBlocking);
+    bool IsNonBlocking();
 	bool CheckHost(const char *pAddrStr);
 	void CleanUp();
 
-protected:
+	// Tries to detect half open connection http://stackoverflow.com/a/283387
+	bool CheckIsConnected();
+
+
+private:
+	// private copy so this can't be copied to avoid problems with destruction
+	ofxTCPManager(const ofxTCPManager & mom){};
+	ofxTCPManager & operator=(const ofxTCPManager & mom){return *this;}
+	int WaitReceive(time_t timeoutSeconds, time_t timeoutMillis);
+	int WaitSend(time_t timeoutSeconds, time_t timeoutMillis);
+
   int m_iListenPort;
   int m_iMaxConnections;
 
@@ -214,12 +226,11 @@ protected:
 	int m_hSocket;
   #endif
 
+  unsigned long m_dwTimeoutConnect;
   unsigned long m_dwTimeoutSend;
   unsigned long m_dwTimeoutReceive;
   unsigned long m_dwTimeoutAccept;
   bool nonBlocking;
   static bool m_bWinsockInit;
-
+  bool m_closing;
 };
-
-#endif // ___ofxTCPManager__H__

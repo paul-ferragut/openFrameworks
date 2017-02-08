@@ -6,20 +6,28 @@
  */
 
 #include "ofGstVideoGrabber.h"
+#include "ofPixels.h"
 
+#include <gst/video/video.h>
+
+#ifdef TARGET_LINUX
+#include <sys/utsname.h>
+#endif
 
 //-------------------------------------------------
 //----------------------------------------- grabber
 //-------------------------------------------------
 
 #ifdef TARGET_LINUX
-// not needed any more, keeping it for compatibility with previous version
-#define LIBUDEV_I_KNOW_THE_API_IS_SUBJECT_TO_CHANGE
+
+#define PREFER_RGB_OVER_YUV
+#define PREFER_NON_COMPRESSED
 
 extern "C" {
 	#include <libudev.h>
 }
 
+#include <gst/gst.h>
 
 /* for ioctl query */
 #include <fcntl.h>
@@ -50,6 +58,7 @@ extern "C" {
 
 #endif
 
+
 static void get_video_devices (ofGstCamData & cam_data)
 {
 #ifdef TARGET_LINUX
@@ -74,7 +83,7 @@ static void get_video_devices (ofGstCamData & cam_data)
 		}
 	}*/
 
-	ofLog (OF_LOG_NOTICE, "Probing devices with udev...");
+	ofLogNotice("ofGstVideoGrabber") << "Probing devices with udev...";
 
 	/* Initialize webcam structures */
 	udev_list_entry_foreach(entry,list){
@@ -88,6 +97,7 @@ static void get_video_devices (ofGstCamData & cam_data)
 		struct video_capability v1cap;
 		string vendor_id;
 		string product_id;
+		string serial_id;
 
 		const char * dev_node = udev_device_get_devnode(device);
 		struct udev_list_entry * properties = udev_device_get_properties_list_entry(device);
@@ -103,23 +113,27 @@ static void get_video_devices (ofGstCamData & cam_data)
 				product_id = udev_list_entry_get_value(property);
 			}
 
+			if(strcmp(name,"ID_SERIAL")==0){
+				serial_id = udev_list_entry_get_value(property);;
+			}
+
 		}
 
 
-		ofLog (OF_LOG_NOTICE, "Found device " + vendor_id + ":" + product_id + ", getting capabilities...");
+		ofLogNotice("ofGstVideoGrabber") << "Found device " << vendor_id << ":" << product_id << ", getting capabilities...";
 
 		/* vbi devices support capture capability too, but cannot be used,
 		 * so detect them by device name */
 		if (strstr (dev_node, "vbi"))
 		{
-			ofLog (OF_LOG_WARNING, "Skipping vbi device: %s", dev_node);
+			ofLogWarning("ofGstVideoGrabber") <<  "Skipping vbi device: " << dev_node;
 			continue;
 		}
 
 
 		if ((fd = open (dev_node, O_RDONLY | O_NONBLOCK)) < 0)
 		{
-			ofLog (OF_LOG_WARNING, "Failed to open %s: %s", dev_node, strerror (errno));
+			ofLogWarning("ofGstVideoGrabber") << "Failed to open " << dev_node << " " << strerror (errno);
 			continue;
 		}
 
@@ -129,29 +143,28 @@ static void get_video_devices (ofGstCamData & cam_data)
 			ok = ioctl (fd, VIDIOCGCAP, &v1cap);
 			if (ok < 0)
 			{
-				ofLog (OF_LOG_WARNING, "Error while probing v4l capabilities for %s: %s",
-						dev_node, strerror (errno));
+				ofLogWarning("ofGstVideoGrabber") << "Error while probing v4l capabilities for "
+						<< dev_node << " " << strerror (errno);
 				close (fd);
 				continue;
 			}
-			ofLog (OF_LOG_NOTICE,"Detected v4l device: %s", v1cap.name);
-			ofLog (OF_LOG_NOTICE,"Device type: %d", v1cap.type);
+			ofLogNotice("ofGstVideoGrabber") << "Detected v4l device: " << v1cap.name;
+			ofLogNotice("ofGstVideoGrabber") << "device type: " << v1cap.type;
 			gstreamer_src = "v4lsrc";
 			product_name  = v1cap.name;
 		}
 		else
 		{
 			guint cap = v2cap.capabilities;
-			ofLog (OF_LOG_NOTICE,"Detected v4l2 device: %s", v2cap.card);
-			ofLog (OF_LOG_NOTICE,"Driver: %s, version: %d", v2cap.driver, v2cap.version);
+			ofLogNotice("ofGstVideoGrabber") << "detected v4l2 device: " << v2cap.card;
+			ofLogNotice("ofGstVideoGrabber") << "driver: " << v2cap.driver << ", version: " << v2cap.version;
 			/* g_print ("Bus info: %s\n", v2cap.bus_info); */ /* Doesn't seem anything useful */
-			ofLog (OF_LOG_NOTICE,"Capabilities: 0x%08X", v2cap.capabilities);
-			if (!(cap & V4L2_CAP_VIDEO_CAPTURE))
-			{
-			  ofLog (OF_LOG_NOTICE,"Device %s seems to not have the capture capability, (radio tuner?)\n"
-					 "Removing it from device list.", dev_node);
-			close (fd);
-			continue;
+			ofLogNotice("ofGstVideoGrabber","Capabilities: 0x%08X", v2cap.capabilities);
+			if (!(cap & V4L2_CAP_VIDEO_CAPTURE)){
+				ofLogNotice() << "device " << dev_node << " seems to not have the capture capability, (radio tuner?)";
+				ofLogNotice() << "removing it from device list";
+				close (fd);
+				continue;
 			}
 			gstreamer_src = "v4l2src";
 			product_name  = (char *) v2cap.card;
@@ -162,6 +175,7 @@ static void get_video_devices (ofGstCamData & cam_data)
 		gst_device.video_device = dev_node;
 		gst_device.gstreamer_src = gstreamer_src;
 		gst_device.product_name = product_name;
+		gst_device.serial_id = serial_id;
 		cam_data.webcam_devices.push_back(gst_device);
 		/*cam_data.webcam_devices[cam_data.num_webcam_devices].video_device      = dev_node;
 		cam_data.webcam_devices[cam_data.num_webcam_devices].gstreamer_src     = gstreamer_src;
@@ -188,7 +202,7 @@ static void get_supported_framerates (ofGstVideoFormat &video_format, GstStructu
 		framerate.numerator   = gst_value_get_fraction_numerator (framerates);
 		framerate.denominator = gst_value_get_fraction_denominator (framerates);
 		video_format.framerates.push_back(framerate);
-		ofLog(OF_LOG_NOTICE,"%d/%d ", framerate.numerator,
+		ofLog(OF_LOG_VERBOSE,"%d/%d ", framerate.numerator,
 						framerate.denominator);
 	}else if (GST_VALUE_HOLDS_LIST (framerates)){
 		int num_framerates = gst_value_list_get_size (framerates);
@@ -197,7 +211,7 @@ static void get_supported_framerates (ofGstVideoFormat &video_format, GstStructu
 			framerate.numerator   = gst_value_get_fraction_numerator (value);
 			framerate.denominator = gst_value_get_fraction_denominator (value);
 			video_format.framerates.push_back(framerate);
-			ofLog(OF_LOG_NOTICE,"%d/%d ", framerate.numerator,
+			ofLog(OF_LOG_VERBOSE,"%d/%d ", framerate.numerator,
 							framerate.denominator);
 		}
 	}else if (GST_VALUE_HOLDS_FRACTION_RANGE (framerates)){
@@ -213,18 +227,24 @@ static void get_supported_framerates (ofGstVideoFormat &video_format, GstStructu
 		numerator_max      = gst_value_get_fraction_numerator (fraction_range_max);
 		denominator_max    = gst_value_get_fraction_denominator (fraction_range_max);
 
-		ofLog(OF_LOG_NOTICE,"from %d/%d to %d/%d", numerator_min,
-				denominator_max, numerator_max, denominator_min);
-
-		for (int i = numerator_min; i <= numerator_max; i++){
-			for (int j = denominator_min; j <= denominator_max; j++){
+		ofLogVerbose("ofGstVideoGrabber") << "get_supported_framerates(): from "
+				<< numerator_min << "/" << denominator_max
+				<< " to " << numerator_max << "/" << denominator_min;
+        if(denominator_max==1 && numerator_max>1000000){
+            // workaround for #4647 where some camera seems to
+            // return a really high value for num_max crashing the app
+            numerator_max = 1000;
+        }
+        for (int i = numerator_min; i <= numerator_max; i++){
+            for (int j = denominator_min; j <= denominator_max; j++){
 				framerate.numerator = i;
 				framerate.denominator = j;
 				video_format.framerates.push_back(framerate);
 			}
 		}
 	}else{
-		ofLog (OF_LOG_WARNING,"unknown GValue type %s for framerates", G_VALUE_TYPE_NAME (framerates));
+		ofLogVerbose("ofGstVideoGrabber") << "get_supported_framerates(): unknown GValue type "
+				<< G_VALUE_TYPE_NAME (framerates) << " for framerates";
 	}
 }
 
@@ -270,13 +290,13 @@ static int find_resolution(ofGstDevice &webcam_device, int width, int height){
 }
 
 
+#if GST_VERSION_MAJOR==0
 static void add_video_format (ofGstDevice &webcam_device,
-  ofGstVideoFormat &video_format, GstStructure &format_structure, int desired_framerate)
+  ofGstVideoFormat &video_format, GstStructure &format_structure, int desired_framerate, ofPixelFormat desiredPixelFormat)
 {
 
-	ofLog(OF_LOG_NOTICE,"%s %d x %d framerates:",
-				video_format.mimetype.c_str(), video_format.width,
-				video_format.height);
+	ofLogVerbose("ofGstVideoGrabber") << "add_video_format(): " << video_format.mimetype.c_str()
+			<< " " << video_format.width << "x" << video_format.height << " framerates:";
 	get_supported_framerates (video_format, format_structure);
 	find_framerate (video_format, desired_framerate);
 
@@ -289,8 +309,37 @@ static void add_video_format (ofGstDevice &webcam_device,
 								webcam_device.video_formats[i].choosen_framerate.denominator;
 		if (desired_framerate == -1){
 			if(new_framerate > curr_framerate) {
-				ofLog(OF_LOG_VERBOSE,"higher framerate replacing existing format\n");
+				ofLogVerbose("ofGstVideoGrabber") << "add_video_format(): higher framerate replacing existing format";
 				webcam_device.video_formats[i] = video_format;
+#ifdef PREFER_NON_COMPRESSED
+			}else if(webcam_device.video_formats[i].mimetype != "video/x-raw-yuv"
+					&& webcam_device.video_formats[i].mimetype != "video/x-raw-rgb"
+					&& ( video_format.mimetype == "video/x-raw-yuv" || video_format.mimetype == "video/x-raw-rgb" )
+					&& new_framerate == curr_framerate){
+				ofLogVerbose("ofGstVideoGrabber") << "add_video_format(): non compressed format with same framerate, replacing existing format";
+				webcam_device.video_formats[i] = video_format;
+#else
+			}else if((webcam_device.video_formats[i].mimetype == "video/x-raw-yuv"
+					|| webcam_device.video_formats[i].mimetype == "video/x-raw-rgb")
+					&& ( video_format.mimetype != "video/x-raw-yuv" && video_format.mimetype != "video/x-raw-rgb" )
+					&& new_framerate == curr_framerate){
+				ofLogVerbose("ofGstVideoGrabber") << "add_video_format(): non compressed format with same framerate, replacing existing format";
+				webcam_device.video_formats[i] = video_format;
+#endif
+
+#ifdef PREFER_RGB_OVER_YUV
+			}else if(webcam_device.video_formats[i].mimetype == "video/x-raw-yuv"
+					&& video_format.mimetype == "video/x-raw-rgb"
+					&& new_framerate == curr_framerate){
+				ofLogVerbose("ofGstVideoGrabber") << "add_video_format(): rgb format with same framerate as yuv, replacing existing format";
+				webcam_device.video_formats[i] = video_format;
+#else
+			}else if(webcam_device.video_formats[i].mimetype == "video/x-raw-rgb"
+					&& video_format.mimetype == "video/x-raw-yuv"
+					&& new_framerate == curr_framerate){
+				ofLogVerbose("ofGstVideoGrabber") << "add_video_format(): rgb format with same framerate as yuv, replacing existing format";
+				webcam_device.video_formats[i] = video_format;
+#endif
 			}else{
 				ofLog(OF_LOG_VERBOSE,"already added, skipping\n");
 			}
@@ -298,8 +347,36 @@ static void add_video_format (ofGstDevice &webcam_device,
 			if(fabs(new_framerate - desired_framerate) < fabs(curr_framerate - desired_framerate) ){
 				ofLog(OF_LOG_VERBOSE,"more similar framerate replacing existing format\n");
 				webcam_device.video_formats[i] = video_format;
+#ifdef PREFER_NON_COMPRESSED
+			}else if(webcam_device.video_formats[i].mimetype != "video/x-raw-yuv"
+					&& webcam_device.video_formats[i].mimetype != "video/x-raw-rgb"
+					&& ( video_format.mimetype == "video/x-raw-yuv" || video_format.mimetype == "video/x-raw-rgb" )
+					&& new_framerate == curr_framerate){
+				ofLogVerbose("ofGstVideoGrabber") << "add_video_format(): non compressed format with same framerate, replacing existing format";
+				webcam_device.video_formats[i] = video_format;
+#else
+			}else if((webcam_device.video_formats[i].mimetype == "video/x-raw-yuv"
+					|| webcam_device.video_formats[i].mimetype == "video/x-raw-rgb")
+					&& ( video_format.mimetype != "video/x-raw-yuv" && video_format.mimetype != "video/x-raw-rgb" )
+					&& new_framerate == curr_framerate){
+				ofLogVerbose("ofGstVideoGrabber") << "add_video_format(): non compressed format with same framerate, replacing existing format";
+				webcam_device.video_formats[i] = video_format;
+#endif
+#ifdef PREFER_RGB_OVER_YUV
+			}else if(webcam_device.video_formats[i].mimetype == "video/x-raw-yuv"
+					&& video_format.mimetype == "video/x-raw-rgb"
+					&& new_framerate == curr_framerate){
+				ofLogVerbose("ofGstVideoGrabber") << "add_video_format(): rgb format with same framerate as yuv, replacing existing format";
+				webcam_device.video_formats[i] = video_format;
+#else
+			}else if(webcam_device.video_formats[i].mimetype == "video/x-raw-rgb"
+					&& video_format.mimetype == "video/x-raw-yuv"
+					&& new_framerate == curr_framerate){
+				ofLogVerbose("ofGstVideoGrabber") << "add_video_format(): rgb format with same framerate as yuv, replacing existing format";
+				webcam_device.video_formats[i] = video_format;
+#endif
 			}else{
-				ofLog(OF_LOG_VERBOSE,"already added, skipping\n");
+				ofLogVerbose("ofGstVideoGrabber") << "add_video_format(): already added, skipping";
 			}
 		}
 
@@ -308,11 +385,75 @@ static void add_video_format (ofGstDevice &webcam_device,
 
 	webcam_device.video_formats.push_back(video_format);
 }
+#else
+static void add_video_format (ofGstDevice &webcam_device,
+  ofGstVideoFormat &video_format, GstStructure &format_structure, int desired_framerate, ofPixelFormat desiredPixelFormat)
+{
 
+	ofLogVerbose("ofGstVideoGrabber") << "add_video_format(): "
+							<< video_format.mimetype << " " << video_format.format_name
+							<< video_format.width << "x" << video_format.height << " "
+							<< "videoformat: " << gst_video_format_from_string(video_format.format_name.c_str())
+							<< " framerates: ";
+	get_supported_framerates (video_format, format_structure);
+	find_framerate (video_format, desired_framerate);
+
+	int i = find_resolution(webcam_device,video_format.width, video_format.height);
+
+	if (i!=-1) { // Resolution already added ?
+		float new_framerate = (float)video_format.choosen_framerate.numerator /
+								 video_format.choosen_framerate.denominator;
+		float curr_framerate = (float)webcam_device.video_formats[i].choosen_framerate.numerator /
+								webcam_device.video_formats[i].choosen_framerate.denominator;
+		if (desired_framerate == -1){
+			// choose faster
+			if(new_framerate > curr_framerate) {
+				ofLogVerbose("ofGstVideoGrabber") << "add_video_format(): higher framerate replacing existing format";
+				webcam_device.video_formats[i] = video_format;
+
+			}
+		}else{
+			if(fabs(new_framerate - desired_framerate) < fabs(curr_framerate - desired_framerate) ){
+				ofLogVerbose("ofGstVideoGrabber") << "add_video_format(): more similar framerate replacing existing format";
+				webcam_device.video_formats[i] = video_format;
+			}else{
+				ofLogVerbose("ofGstVideoGrabber") << "add_video_format(): already added, skipping";
+			}
+		}
+
+		// with same fps choose non_compressed over compressed
+		if((gst_video_format_from_string(webcam_device.video_formats[i].format_name.c_str()) == GST_VIDEO_FORMAT_ENCODED
+				|| gst_video_format_from_string(webcam_device.video_formats[i].format_name.c_str()) == GST_VIDEO_FORMAT_UNKNOWN)
+				&& ( gst_video_format_from_string(video_format.format_name.c_str()) != GST_VIDEO_FORMAT_ENCODED )
+				&& ( gst_video_format_from_string(video_format.format_name.c_str()) != GST_VIDEO_FORMAT_UNKNOWN )
+				&& new_framerate == curr_framerate){
+			ofLogVerbose("ofGstVideoGrabber") << "add_video_format(): non compressed format with same framerate, replacing existing format";
+			webcam_device.video_formats[i] = video_format;
+		}
+
+		// with same fps choose desiredPixelFormat over other formats to avoid colorspace compression
+		else if(gst_video_format_from_string(webcam_device.video_formats[i].format_name.c_str()) != ofGstVideoUtils::getGstFormat(desiredPixelFormat)
+				&& gst_video_format_from_string(video_format.format_name.c_str()) == ofGstVideoUtils::getGstFormat(desiredPixelFormat)
+				&& new_framerate == curr_framerate){
+			ofLogVerbose("ofGstVideoGrabber") << "add_video_format(): " << webcam_device.video_formats[i].format_name << " format with same framerate as other format, replacing existing format";
+			webcam_device.video_formats[i] = video_format;
+
+		}
+
+		else{
+			ofLogVerbose("ofGstVideoGrabber") << "add_video_format(): already added, skipping";
+		}
+
+		return;
+	}
+
+	webcam_device.video_formats.push_back(video_format);
+}
+#endif
 
 // TODO: gets formats for cameras, when a format returns a range it gets
 // in steps /2 and *2 from min to max and max to min, for format7 it should be free to get any size
-static void get_supported_video_formats (ofGstDevice &webcam_device, GstCaps &caps, int desired_framerate)
+static void get_supported_video_formats (ofGstDevice &webcam_device, GstCaps &caps, int desired_framerate, ofPixelFormat desiredPixelFormat)
 {
 
 	int num_structures;
@@ -332,7 +473,12 @@ static void get_supported_video_formats (ofGstDevice &webcam_device, GstCaps &ca
 			video_format.mimetype = gst_structure_get_name (structure);
 			gst_structure_get_int (structure, "width", &(video_format.width));
 			gst_structure_get_int (structure, "height", &(video_format.height));
-			add_video_format(webcam_device, video_format, *structure, desired_framerate);
+			#if GST_VERSION_MAJOR==1
+			if(gst_structure_get_string(structure,"format"))
+				video_format.format_name = gst_structure_get_string(structure,"format");
+			#endif
+			//cout << gst_structure_to_string(structure) << endl;;
+			add_video_format(webcam_device, video_format, *structure, desired_framerate, desiredPixelFormat);
 		}else if (GST_VALUE_HOLDS_INT_RANGE (width)){
 			int min_width, max_width, min_height, max_height;
 			int cur_width, cur_height;
@@ -350,7 +496,11 @@ static void get_supported_video_formats (ofGstDevice &webcam_device, GstCaps &ca
 				video_format.mimetype = gst_structure_get_name (structure);
 				video_format.width    = cur_width;
 				video_format.height   = cur_height;
-				add_video_format(webcam_device, video_format, *structure, desired_framerate);
+				#if GST_VERSION_MAJOR==1
+				if(gst_structure_get_string(structure,"format"))
+					video_format.format_name = gst_structure_get_string(structure,"format");
+				#endif
+				add_video_format(webcam_device, video_format, *structure, desired_framerate, desiredPixelFormat);
 				cur_width  *= 2;
 				cur_height *= 2;
 			}
@@ -363,7 +513,11 @@ static void get_supported_video_formats (ofGstDevice &webcam_device, GstCaps &ca
 				video_format.mimetype = gst_structure_get_name (structure);
 				video_format.width    = cur_width;
 				video_format.height   = cur_height;
-				add_video_format(webcam_device, video_format, *structure, desired_framerate);
+				#if GST_VERSION_MAJOR==1
+				if(gst_structure_get_string(structure,"format"))
+					video_format.format_name = gst_structure_get_string(structure,"format");
+				#endif
+				add_video_format(webcam_device, video_format, *structure, desired_framerate, desiredPixelFormat);
 				cur_width  /= 2;
 				cur_height /= 2;
 			}
@@ -373,28 +527,28 @@ static void get_supported_video_formats (ofGstDevice &webcam_device, GstCaps &ca
 	}
 }
 
-static void get_device_data (ofGstDevice &webcam_device, int desired_framerate)
+static void get_device_data (ofGstDevice &webcam_device, int desired_framerate, ofPixelFormat desiredPixelFormat)
 {
-    string pipeline_desc = webcam_device.gstreamer_src + " name=source device=" +
-            webcam_device.video_device + " ! fakesink";
+	string pipeline_desc = webcam_device.gstreamer_src + " name=source device=" +
+			webcam_device.video_device + " ! fakesink";
 
-    GError * err = NULL;
-    GstElement * pipeline = gst_parse_launch (pipeline_desc.c_str(), &err);
-    if ((pipeline == NULL) || (err != NULL)){
-    	if (err){
-    		ofLog(OF_LOG_ERROR, "ofGstUtils: error getting device data: %s", err->message);
-    		g_error_free (err);
-    	}else{
-    		ofLog(OF_LOG_ERROR, "ofGstUtils: error getting device data, cannot get pipeline");
-    	}
-    	if(pipeline)
-    		gst_object_unref (pipeline);
-    	return;
-    }
+	GError * err = NULL;
+	GstElement * pipeline = gst_parse_launch (pipeline_desc.c_str(), &err);
+	if ((pipeline == NULL) || (err != NULL)){
+		if (err){
+			ofLog(OF_LOG_ERROR, "ofGstUtils: error getting device data: %s", err->message);
+			g_error_free (err);
+		}else{
+			ofLog(OF_LOG_ERROR, "ofGstUtils: error getting device data, cannot get pipeline");
+		}
+		if(pipeline)
+			gst_object_unref (pipeline);
+		return;
+	}
 
 	// TODO: try to lower seconds,
-    // Start the pipeline and wait for max. 10 seconds for it to start up
-	gst_element_set_state (pipeline, GST_STATE_PLAYING);
+	// Start the pipeline and wait for max. 10 seconds for it to start up
+	gst_element_set_state (pipeline, GST_STATE_READY);
 	GstStateChangeReturn ret = gst_element_get_state (pipeline, NULL, NULL, 10 * GST_SECOND);
 
 	// Check if any error messages were posted on the bus
@@ -403,20 +557,20 @@ static void get_device_data (ofGstDevice &webcam_device, int desired_framerate)
 	gst_object_unref (bus);
 
 	if ((msg == NULL) && (ret == GST_STATE_CHANGE_SUCCESS)){
-		gst_element_set_state (pipeline, GST_STATE_PAUSED);
 
 		GstElement *src = gst_bin_get_by_name (GST_BIN (pipeline), "source");
 		char       *name;
 		g_object_get (G_OBJECT (src), "device-name", &name, (void*)NULL);
 
 		ofLog(OF_LOG_VERBOSE, "Device: %s (%s)\n", name==NULL?"":name, webcam_device.video_device.c_str());
-		GstPad     *pad  = gst_element_get_pad (src, "src");
-		GstCaps    *caps = gst_pad_get_caps (pad);
+		GstPad     *pad  = gst_element_get_static_pad (src, "src");
+		GstCaps    *caps = gst_pad_get_allowed_caps (pad);
 		gst_object_unref (pad);
 
-		get_supported_video_formats (webcam_device, *caps, desired_framerate);
+		get_supported_video_formats (webcam_device, *caps, desired_framerate, desiredPixelFormat);
 
 		gst_caps_unref (caps);
+		gst_object_unref(src);
 	}else if(msg){
 		gchar *debug;
 		gst_message_parse_error(msg, &err, &debug);
@@ -428,6 +582,7 @@ static void get_device_data (ofGstDevice &webcam_device, int desired_framerate)
 		g_free(debug);
 	}
 	gst_element_set_state (pipeline, GST_STATE_NULL);
+	ret = gst_element_get_state (pipeline, NULL, NULL, 10 * GST_SECOND);
 	gst_object_unref (pipeline);
 
 }
@@ -442,23 +597,74 @@ ofGstVideoGrabber::ofGstVideoGrabber(){
 }
 
 ofGstVideoGrabber::~ofGstVideoGrabber(){
-
+	close();
 }
 
-void ofGstVideoGrabber::setPixelFormat(ofPixelFormat pixelFormat){
+bool ofGstVideoGrabber::setPixelFormat(ofPixelFormat pixelFormat){
 	internalPixelFormat = pixelFormat;
+	return true;
+}
+
+ofPixelFormat ofGstVideoGrabber::getPixelFormat() const{
+	if(videoUtils.isInitialized()){
+		return videoUtils.getPixelFormat();
+	}else{
+		return internalPixelFormat;
+	}
 }
 
 void ofGstVideoGrabber::setVerbose(bool bVerbose){
-	//if(bVerbose) ofLogSetTopicLogLevel("ofGstVideoGrabber",OF_LOG_VERBOSE);
-	//else ofLogResetTopicLogLevel("ofGstVideoGrabber");
+	if(bVerbose) ofSetLogLevel("ofGstVideoGrabber", OF_LOG_VERBOSE);
+	else ofSetLogLevel("ofGstVideoGrabber",OF_LOG_NOTICE);
 }
 
-void ofGstVideoGrabber::listDevices(){
-	if(!camData.bInited) get_video_devices(camData);
-	for(unsigned i=0; i<camData.webcam_devices.size(); i++){
-		cout << "device " << i << ": " + camData.webcam_devices[i].video_device + ": " + camData.webcam_devices[i].product_name << endl;
+bool ofGstVideoGrabber::isInitialized() const{
+	return videoUtils.isInitialized();
+}
+
+ofPixelFormat ofPixelFormatFromGstFormat(string format){
+#if GST_VERSION_MAJOR>=1
+	switch(gst_video_format_from_string(format.c_str())){
+	case GST_VIDEO_FORMAT_RGB: return OF_PIXELS_RGB;
+	case GST_VIDEO_FORMAT_RGBA: return OF_PIXELS_RGBA;
+	case GST_VIDEO_FORMAT_BGRA: return OF_PIXELS_BGRA;
+	case GST_VIDEO_FORMAT_GRAY8: return OF_PIXELS_MONO;
+	case GST_VIDEO_FORMAT_RGB16: return OF_PIXELS_RGB565;
+	default: return OF_PIXELS_UNKNOWN;
 	}
+#else
+	ofLogWarning("ofGstVideoGrabber") << "ofPixelFormatFromGstFormat(): only supported for gstreamer 1.0";
+	return OF_PIXELS_UNKNOWN;
+#endif
+}
+
+vector<ofVideoDevice> ofGstVideoGrabber::listDevices() const {
+#if GST_VERSION_MAJOR>=1
+	if(!camData.bInited) get_video_devices(camData);
+	vector<ofVideoDevice> devices(camData.webcam_devices.size());
+	for(unsigned i=0; i<camData.webcam_devices.size(); i++){
+		devices[i].id = i;
+        devices[i].bAvailable = true; 
+		devices[i].deviceName = camData.webcam_devices[i].product_name;
+		devices[i].hardwareName = camData.webcam_devices[i].video_device;
+		devices[i].serialID = camData.webcam_devices[i].serial_id;
+		devices[i].formats.resize(camData.webcam_devices[i].video_formats.size());
+		for(int j=0;j<(int)camData.webcam_devices[i].video_formats.size();j++){
+			devices[i].formats[j].pixelFormat = ofPixelFormatFromGstFormat(camData.webcam_devices[i].video_formats[j].format_name);
+			devices[i].formats[j].width = camData.webcam_devices[i].video_formats[j].width;
+			devices[i].formats[j].height = camData.webcam_devices[i].video_formats[j].height;
+			devices[i].formats[j].framerates.resize(camData.webcam_devices[i].video_formats[j].framerates.size());
+			for(int k=0;k<(int)camData.webcam_devices[i].video_formats[j].framerates.size();k++){
+				devices[i].formats[j].framerates[k] = float(camData.webcam_devices[i].video_formats[j].framerates[k].numerator)/float(camData.webcam_devices[i].video_formats[j].framerates[k].denominator);
+			}
+		}
+		ofLogVerbose("ofGstVideoGrabber") << "listDevices(): device " << i << ": " << camData.webcam_devices[i].video_device << ": " << camData.webcam_devices[i].product_name;
+	}
+	return devices;
+#else
+	ofLogWarning("ofGstVideoGrabber") << "listDevices(): only supported for gstreamer 1.0";
+	return vector<ofVideoDevice>();
+#endif
 }
 
 void ofGstVideoGrabber::setDeviceID(int id){
@@ -466,15 +672,15 @@ void ofGstVideoGrabber::setDeviceID(int id){
 	if(int(camData.webcam_devices.size())>id){
 		deviceID = id;
 	}else{
-		ofLog(OF_LOG_WARNING,"ofGstUtils: selected device doesn't exist, selecting device 0");
+		ofLogWarning("ofGstVideoGrabber") << "setDeviceID(): selected device doesn't exist, selecting device 0";
 	}
 }
 
-ofGstVideoFormat & ofGstVideoGrabber::selectFormat(int w, int h, int desired_framerate){
+ofGstVideoFormat & ofGstVideoGrabber::selectFormat(int w, int h, int desired_framerate, ofPixelFormat desiredPixelFormat){
 	int minDiff=999999;
 	int mostSimilarFormat=0;
 
-	get_device_data (camData.webcam_devices[deviceID], desired_framerate);
+	get_device_data (camData.webcam_devices[deviceID], desired_framerate, desiredPixelFormat);
 
 	for(unsigned i=0; i<camData.webcam_devices[deviceID].video_formats.size(); i++){
 		if(camData.webcam_devices[deviceID].video_formats[i].width==w && camData.webcam_devices[deviceID].video_formats[i].height==h){
@@ -491,71 +697,116 @@ ofGstVideoFormat & ofGstVideoGrabber::selectFormat(int w, int h, int desired_fra
 	return camData.webcam_devices[deviceID].video_formats[mostSimilarFormat];
 }
 
-bool ofGstVideoGrabber::initGrabber(int w, int h){
+bool ofGstVideoGrabber::setup(int w, int h){
 	if(!camData.bInited) get_video_devices(camData);
 
 	if(camData.webcam_devices.size()==0){
-		ofLog(OF_LOG_ERROR,"ofGstUtils: no devices found exiting without initializing");
+		ofLogError("ofGstVideoGrabber") << "initGrabber(): no devices found, exiting without initializing";
 		return false;
 	}
 
-	ofGstVideoFormat & format = selectFormat(w, h, attemptFramerate);
-	ofLog(OF_LOG_NOTICE,"ofGstUtils: selected device: " + camData.webcam_devices[deviceID].product_name);
-	ofLog(OF_LOG_NOTICE,"ofGstUtils: selected format: " + ofToString(format.width) + "x" + ofToString(format.height) + " " + format.mimetype + " framerate: " + ofToString(format.choosen_framerate.numerator) + "/" + ofToString(format.choosen_framerate.denominator));
+	ofGstVideoFormat format;
+	if(internalPixelFormat!=OF_PIXELS_NATIVE){
+		format = selectFormat(w, h, attemptFramerate, internalPixelFormat);
+		ofLogNotice("ofGstVideoGrabber") << "initGrabber(): selected device: " << camData.webcam_devices[deviceID].product_name;
+		ofLogNotice("ofGstVideoGrabber") << "initGrabber(): selected format: " << format.width << "x" << format.height
+			<< " " << format.mimetype << " " << format.format_name << " framerate: " << format.choosen_framerate.numerator << "/" << format.choosen_framerate.denominator;
+	}
 
 	bIsCamera = true;
 
 
+#if GST_VERSION_MAJOR==0
 	const char * decodebin = "";
 	if(format.mimetype == "video/x-raw-bayer")
-		decodebin = "bayer2rgb !";
+		decodebin = "! bayer2rgb ";
 	else if(format.mimetype != "video/x-raw-yuv" && format.mimetype != "video/x-raw-rgb")
-		decodebin = "decodebin2 !";
+		decodebin = "! decodebin2 ";
+	const char * scale = "! ffmpegcolorspace ";
+	if( w!=format.width || h!=format.height )	scale = "! ffvideoscale method=2 ";
 
-	const char * scale = "ffmpegcolorspace ";
-	if( w!=format.width || h!=format.height )	scale = "ffvideoscale method=2 !";
+	string format_str_pipeline = "%s name=video_source device=%s ! "
+			 "%s,width=%d,height=%d,framerate=%d/%d "
+			 "%s %s ";
 
+	gchar* pipeline_string=g_strdup_printf (
+		      format_str_pipeline.c_str(),
+		      camData.webcam_devices[deviceID].gstreamer_src.c_str(),
+		      camData.webcam_devices[deviceID].video_device.c_str(),
+		      format.mimetype.c_str(),
+		      format.width,
+		      format.height,
+		      format.choosen_framerate.numerator,
+		      format.choosen_framerate.denominator,
+		      decodebin, scale);
+#else
+	string pipeline_string;
+	string format_str_pipeline;
+	string fix_v4l2_316;
+#if defined(TARGET_LINUX) && !defined(OF_USE_GST_GL) && GST_VERSION_MAJOR>0 && GST_VERSION_MINOR>2 && GST_VERSION_MINOR<5
+	videoUtils.setCopyPixels(true);
+#endif
+	if(internalPixelFormat!=OF_PIXELS_NATIVE){
+		string decodebin, scale;
+		if(format.mimetype == "video/x-bayer"){
+			decodebin = "! bayer2rgb ";
+		}else if(gst_video_format_from_string(format.format_name.c_str()) == GST_VIDEO_FORMAT_ENCODED || gst_video_format_from_string(format.format_name.c_str()) ==GST_VIDEO_FORMAT_UNKNOWN){
+			decodebin = "! decodebin ";
+		}
 
-	string format_str_pipeline = string("%s name=video_source device=%s ! ") +
-								 "%s,width=%d,height=%d,framerate=%d/%d ! " +
-								 "%s %s ";
+		if(format.format_name!=ofGstVideoUtils::getGstFormatName(internalPixelFormat)){
+			scale = "! videoconvert ";
+		}
 
-	gchar* pipeline_string =g_strdup_printf (
-				      format_str_pipeline.c_str(),
-				      camData.webcam_devices[deviceID].gstreamer_src.c_str(),
-				      camData.webcam_devices[deviceID].video_device.c_str(),
-				      format.mimetype.c_str(),
-				      format.width,
-				      format.height,
-				      format.choosen_framerate.numerator,
-				      format.choosen_framerate.denominator,
-				      decodebin, scale,
-				      w,h);
+		if( w!=format.width || h!=format.height ){
+			scale = "! videoscale method=2 ";
+		}
 
-	int bpp;
-	switch(internalPixelFormat){
-	case OF_PIXELS_MONO:
-		bpp = 8;
-		break;
-	case OF_PIXELS_RGB:
-		bpp = 24;
-		break;
-	case OF_PIXELS_RGBA:
-	case OF_PIXELS_BGRA:
-		bpp = 32;
-		break;
-	default:
-		bpp=24;
-		break;
-	}
+		if(format.format_name==""){
+			format_str_pipeline = "%s name=video_source device=%s ! "
+									 "%s,width=%d,height=%d,framerate=%d/%d "
+									 "%s %s ";
 
+			pipeline_string=g_strdup_printf (
+							  format_str_pipeline.c_str(),
+							  camData.webcam_devices[deviceID].gstreamer_src.c_str(),
+							  camData.webcam_devices[deviceID].video_device.c_str(),
+							  format.mimetype.c_str(),
+							  format.width,
+							  format.height,
+							  format.choosen_framerate.numerator,
+							  format.choosen_framerate.denominator,
+							  decodebin.c_str(), (scale + fix_v4l2_316).c_str());
+		}else{
+			format_str_pipeline = "%s name=video_source device=%s ! "
+									 "%s,format=%s,width=%d,height=%d,framerate=%d/%d "
+									 "%s %s ";
 
-	if(	videoUtils.setPipeline(pipeline_string,bpp,false,w,h) ){
-		videoUtils.play();
-		return true;
+			pipeline_string=g_strdup_printf (
+							  format_str_pipeline.c_str(),
+							  camData.webcam_devices[deviceID].gstreamer_src.c_str(),
+							  camData.webcam_devices[deviceID].video_device.c_str(),
+							  format.mimetype.c_str(),
+							  format.format_name.c_str(),
+							  format.width,
+							  format.height,
+							  format.choosen_framerate.numerator,
+							  format.choosen_framerate.denominator,
+							  decodebin.c_str(), (scale + fix_v4l2_316).c_str());
+		}
 	}else{
-		return false;
+		format_str_pipeline = "v4l2src name=video_source device=/dev/video%d ! video/x-raw,framerate=%d/1 %s";
+		pipeline_string=g_strdup_printf (
+				format_str_pipeline.c_str(),
+				deviceID,attemptFramerate,fix_v4l2_316.c_str());
+
+
 	}
+#endif
+
+
+
+	return videoUtils.setPipeline(pipeline_string,internalPixelFormat,false,w,h) && videoUtils.startPipeline();
 }
 
 void ofGstVideoGrabber::setDesiredFrameRate(int framerate){
@@ -568,26 +819,31 @@ ofGstVideoUtils * ofGstVideoGrabber::getGstVideoUtils(){
 
 
 void ofGstVideoGrabber::update(){
-	videoUtils.update();
+ 	videoUtils.update();
 }
 
-bool ofGstVideoGrabber::isFrameNew(){
+bool ofGstVideoGrabber::isFrameNew() const {
 	return videoUtils.isFrameNew();
 }
 
-unsigned char * ofGstVideoGrabber::getPixels(){
+
+ofPixels& ofGstVideoGrabber::getPixels(){
 	return videoUtils.getPixels();
 }
 
-ofPixelsRef ofGstVideoGrabber::getPixelsRef(){
-	return videoUtils.getPixelsRef();
+const ofPixels & ofGstVideoGrabber::getPixels() const {
+	return videoUtils.getPixels();
 }
 
-float ofGstVideoGrabber::getHeight(){
+ofTexture * ofGstVideoGrabber::getTexturePtr(){
+	return videoUtils.getTexture();
+}
+
+float ofGstVideoGrabber::getHeight() const {
 	return videoUtils.getHeight();
 }
 
-float ofGstVideoGrabber::getWidth(){
+float ofGstVideoGrabber::getWidth() const {
 	return videoUtils.getWidth();
 }
 

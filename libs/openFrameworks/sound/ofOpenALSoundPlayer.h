@@ -1,11 +1,14 @@
 #pragma once
 
 #include "ofConstants.h"
+
+#ifdef OF_SOUND_PLAYER_OPENAL
 #include "ofBaseSoundPlayer.h"
 #include "ofEvents.h"
 #include "ofThread.h"
+#include "ofFileUtils.h"
 
-#if defined (TARGET_OF_IPHONE) || defined (TARGET_OSX)
+#if defined (TARGET_OF_IOS) || defined (TARGET_OSX)
 #include <OpenAL/al.h>
 #include <OpenAL/alc.h>
 #else
@@ -15,11 +18,9 @@
 
 #include "kiss_fft.h"
 #include "kiss_fftr.h"
-#ifdef TARGET_LINUX
-    #include <sndfile.h>
-    #ifdef OF_USING_MPG123
-        #include <mpg123.h>
-    #endif
+#include <sndfile.h>
+#ifdef OF_USING_MPG123
+	#include <mpg123.h>
 #endif
 
 //		TO DO :
@@ -50,24 +51,29 @@ class ofOpenALSoundPlayer : public ofBaseSoundPlayer, public ofThread {
 		ofOpenALSoundPlayer();
 		virtual ~ofOpenALSoundPlayer();
 
-		void loadSound(string fileName, bool stream = false);
-		void unloadSound();
+        bool load(std::filesystem::path fileName, bool stream = false);
+		void unload();
 		void play();
 		void stop();
 
 		void setVolume(float vol);
-		void setPan(float vol);
+		void setPan(float vol); // -1 to 1
 		void setSpeed(float spd);
 		void setPaused(bool bP);
 		void setLoop(bool bLp);
 		void setMultiPlay(bool bMp);
 		void setPosition(float pct); // 0 = start, 1 = end;
+		void setPositionMS(int ms);
 
-		float getPosition();
-		bool getIsPlaying();
-		float getSpeed();
-		float getPan();
-		bool getIsPaused();
+
+		float getPosition() const;
+		int getPositionMS() const;
+		bool isPlaying() const;
+		float getSpeed() const;
+		float getPan() const;
+        float getVolume() const;
+		bool isPaused() const;
+		bool isLoaded() const;
 
 		static void initialize();
 		static void close();
@@ -89,15 +95,15 @@ class ofOpenALSoundPlayer : public ofBaseSoundPlayer, public ofThread {
 		static void runWindow(vector<float> & signal);
 		static void initSystemFFT(int bands);
 
-		bool sfReadFile(string path,vector<short> & buffer,vector<float> & fftAuxBuffer);
-		bool sfStream(string path,vector<short> & buffer,vector<float> & fftAuxBuffer);
+        bool sfReadFile(std::filesystem::path path,vector<short> & buffer,vector<float> & fftAuxBuffer);
+        bool sfStream(std::filesystem::path path,vector<short> & buffer,vector<float> & fftAuxBuffer);
 #ifdef OF_USING_MPG123
-		bool mpg123ReadFile(string path,vector<short> & buffer,vector<float> & fftAuxBuffer);
-		bool mpg123Stream(string path,vector<short> & buffer,vector<float> & fftAuxBuffer);
+        bool mpg123ReadFile(std::filesystem::path path,vector<short> & buffer,vector<float> & fftAuxBuffer);
+        bool mpg123Stream(std::filesystem::path path,vector<short> & buffer,vector<float> & fftAuxBuffer);
 #endif
 
-		void readFile(string fileName,vector<short> & buffer);
-		void stream(string fileName, vector<short> & buffer);
+        bool readFile(std::filesystem::path fileName,vector<short> & buffer);
+        bool stream(std::filesystem::path fileName, vector<short> & buffer);
 
 		bool isStreaming;
 		bool bMultiPlay;
@@ -134,14 +140,12 @@ class ofOpenALSoundPlayer : public ofBaseSoundPlayer, public ofThread {
 		static vector<float> systemBins;
 		static vector<kiss_fft_cpx> systemCx_out;
 
-#ifdef TARGET_LINUX
 		SNDFILE* streamf;
 		size_t stream_samples_read;
 #ifdef OF_USING_MPG123
 		mpg123_handle * mp3streamf;
-#endif
-#endif
 		int stream_encoding;
+#endif
 		int mp3_buffer_size;
 		int stream_subformat;
 		double stream_scale;
@@ -151,3 +155,4 @@ class ofOpenALSoundPlayer : public ofBaseSoundPlayer, public ofThread {
 		bool stream_end;
 };
 
+#endif

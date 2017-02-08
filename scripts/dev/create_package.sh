@@ -1,99 +1,124 @@
-# $1 -> platform: win_cb, linux, linux64, vs2008, osx, osxSL, iphone, all
+#!/bin/bash
+# $1 -> platform: msys2, linux, linux64, vs, osx, ios, all
 # $2 -> version number: 006
+#
+# This script removes folders clones the openFrameworks repo 
+# and deletes parts of it to create the final package.
+# Do not try to modify it to run over your local install of
+# openFrameworks or it'll remove it along with any projects it
+# might contain.
 
 platform=$1
 version=$2
+of_root=$(readlink -f "$(dirname "$(readlink -f "$0")")/../..")
 
-runOSXSLScript=0
-
-if [ "$platform" = "osxSL" ]; then
-    platform="osx"
-    runOSXSLScript=1
-    echo "will make changes for snow leopard"
+if [ $# -ge 3 ]; then
+    branch=$3
+else
+    branch=stable
 fi
 
-if [ "$platform" != "win_cb" ] && [ "$platform" != "linux" ] && [ "$platform" != "linux64" ] && [ "$platform" != "vs2008" ] && [ "$platform" != "vs2010" ] && [ "$platform" != "osx" ] && [ "$platform" != "android" ] && [ "$platform" != "iphone" ] && [ "$platform" != "all" ]; then
+if [ $# -ge 4 ]; then
+    libs_abi=$4
+else
+    libs_abi=""
+fi
+
+REPO=../..
+REPO_ALIAS=originlocal
+BRANCH=$branch
+
+PG_REPO=https://github.com/openframeworks/projectGenerator.git
+PG_REPO_ALIAS=originhttps
+PG_BRANCH=$branch
+
+hostArch=`uname`
+
+if [ "$platform" != "msys2" ] && [ "$platform" != "linux" ] && [ "$platform" != "linux64" ] && [ "$platform" != "linuxarmv6l" ] && [ "$platform" != "linuxarmv7l" ] && [ "$platform" != "vs" ] && [ "$platform" != "osx" ] && [ "$platform" != "android" ] && [ "$platform" != "ios" ]; then
     echo usage: 
     echo ./create_package.sh platform version
     echo platform:
-    echo win_cb, linux, linux64, vs2008, vs2010, osx, android, iphone, all
+    echo msys2, linux, linux64, linuxarmv6l, linuxarmv7l, vs, osx, android, ios, all
     exit 1
 fi
 
 if [ "$version" == "" ]; then
     echo usage: 
-    echo ./create_package.sh platform version
+    echo ./create_package.sh platform version [branch]
     echo platform:
-    echo win_cb, linux, linux64, vs2008, osx, android, all
+    echo msys2, linux, linux64, vs, osx, android, ios, all
+    echo 
+    echo branch:
+    echo master, stable
     exit 1
 fi
 
-REPO=git://github.com/openframeworks/openFrameworks.git
-REPO_ALIAS=ofmain
-BRANCH=master
+echo
+echo
+echo
+echo --------------------------------------------------------------------------
+echo "Creating package $version for $platform $libs_abi"
+echo --------------------------------------------------------------------------
+echo
 
-libsnotinmac="unicap gstappsink glu quicktime videoInput"
-libsnotinlinux="quicktime videoInput glut glu"
-libsnotinwindows="unicap gstappsink"
-libsnotinandroid="glut unicap gstappsink quicktime videoInput fmodex glee rtAudio"
-libsnotiniphone="glut unicap gstappsink quicktime videoInput fmodex glee rtAudio"
+# This script removes folders clones the openFrameworks repo 
+# and deletes parts of it to create the final package.
+# Do not try to modify it to run over your local install of
+# openFrameworks or it'll remove it along with any projects it
+# might contain.
+# Instead we download it in a folder with a different name so it's
+# safe to delete it completely at the end
+pkgfolder=openFrameworks_pkg_creation
 
-if [ ! -d openFrameworks/.git ]; then
-    git clone $REPO 
-    gitfinishedok=$?
-    if [ $gitfinishedok -ne 0 ]; then
-        echo "Error connecting to github"
-        exit
-    fi
+rm -rf ${pkgfolder}
+echo "Cloning OF from $REPO $BRANCH" 
+git clone $REPO --depth=1 --branch=$BRANCH ${pkgfolder} 2> /dev/null
+gitfinishedok=$?
+if [ $gitfinishedok -ne 0 ]; then
+    echo "Error connecting to github"
+    exit 1
 fi
 
-
-
-cd openFrameworks
-if [ "$BRANCH" != "master" ]; then
-	git remote add $REPO_ALIAS $REPO
-	git fetch $REPO_ALIAS
-    git checkout --track -b $BRANCH ${REPO_ALIAS}/${BRANCH}
-fi
-git reset --hard
-git pull $REPO $BRANCH
-
-
+cd ${pkgfolder}
 packageroot=$PWD
+
+cd apps
+echo "Cloning project generator from $PG_REPO $PG_BRANCH" 
+git clone $PG_REPO --depth=1 --branch=$PG_BRANCH 2> /dev/null
+gitfinishedok=$?
+if [ $gitfinishedok -ne 0 ]; then
+    echo "Error connecting to github"
+    exit 1
+fi
+
+cd $packageroot
+
 
 function deleteCodeblocks {
     #delete codeblock files
     rm *.cbp
-    rm *.sh
     rm *.workspace
 }
 
 function deleteMakefiles {
     #delete makefiles
-    rm makefile
+    rm Makefile
     rm *.make
-    rm cb_build_runner.sh
 }
 
-function deleteVS2008 {
-    #delete vs2008 files
-    rm *.vcproj
-    rm *.vcproj.user
-    rm *_vs2008.sln
-}
-
-function deleteVS2010 {
-    #delete vs2010 files
+function deleteVS {
+    #delete VS files
     rm *.vcxproj
     rm *.vcxproj.user
     rm *.vcxproj.filters
-    rm *_vs2010.sln
+    rm *.sln
 }
 
 function deleteXcode {
     #delete osx files
     rm -Rf *.xcodeproj
     rm openFrameworks-Info.plist
+    rm Project.xcconfig
 }
 
 function deleteEclipse {
@@ -101,215 +126,324 @@ function deleteEclipse {
     rm $(find . -name .*project)
 }
 
-function deleteProjectFiles {
-    platform=$1
-    ofroot=$2
-    current_example=$3
-    oflib_root=${ofroot}/libs/openFrameworksCompiled    
-    example_name=`echo ${current_example} | sed "s/\.\\///"`
-    
-    cd $current_example
-    
-    echo "deleting projects for $platform $example in $ofroot"
-    echo "oflib in $oflib_root"
-    echo "current dir: " `pwd`
-    echo "current example $example_name"
-    
-    #codeblocks
-    if [ "$platform" = "linux" ] || [ "$platform" = "linux64" ] || [ "$platform" = "win_cb" ]; then 
-        #delete codeblocks for other platforms and rename
-        cp ${current_example}_$platform.cbp $current_example.newcbp
-        cp ${current_example}_$platform.workspace $current_example.newworkspace
-        rm *.cbp *.workspace
-        mv $current_example.newcbp $current_example.cbp
-        mv $current_example.newworkspace $current_example.workspace
-        perl -pi -e s/${example_name}_${platform}/${example_name}/g $current_example.workspace
 
-        #delete other platform's project files
-        if [ "$platform" = "win_cb" ]; then
-            deleteMakefiles
-        fi
-        deleteXcode
-        deleteVS2008
-        deleteVS2010
-	    deleteEclipse
-        
+function createProjectFiles {
+    if [ "$pkg_platform" != "android" ] && [ "$pkg_platform" != "linuxarmv6l" ] && [ "$pkg_platform" != "linuxarmv7l" ]; then
+        cd ${main_ofroot}/apps/projectGenerator
+        git pull origin $PG_BRANCH
+        cd commandLine
+        echo "Recompiling command line PG"
+        PROJECT_OPTIMIZATION_CFLAGS_RELEASE=-O0 CXXFLAGS=-ftrack-macro-expansion=0 make > /dev/null
+        cd ${pkg_ofroot}
+        echo "Creating project files for $pkg_platform"
+        ${main_ofroot}/apps/projectGenerator/commandLine/bin/projectGenerator --recursive -p${pkg_platform} -o$pkg_ofroot $pkg_ofroot/examples > /dev/null
+    elif [ "$pkg_platform" == "linuxarmv6l" ] || [ "$pkg_platform" == "linuxarmv7l" ]; then
+        for example_group in $pkg_ofroot/examples/*; do
+            for example in $example_group/*; do
+                if [ -d $example ]; then
+                    cp $pkg_ofroot/scripts/templates/linux/Makefile $example/
+                    cp $pkg_ofroot/scripts/templates/linux/config.make $example/
+                fi
+            done
+        done
     fi
-
-    #osx
-    if [ "$platform" = "osx" ]; then
-        #delete other platform's project files
-        deleteCodeblocks
-        deleteMakefiles
-        deleteVS2008
-        deleteVS2010
-	    deleteEclipse
-    fi
-
-    #visual studio 2010
-    if [ "$platform" = "vs2010" ]; then
-	    #delete non needed vs files and rename
-        mv ${current_example}_$platform.vcxproj $current_example.vcxproj
-        mv ${current_example}_$platform.vcxproj.user $current_example.vcxproj.user
-        mv ${current_example}_$platform.vcxproj.filters $current_example.vcxproj.filters
-        mv ${current_example}_$platform.sln $current_example.sln
-        perl -pi -e s/${example_name}_${platform}/${example_name}/g $current_example.sln
-
-        #delete other platform's project files
-	    deleteVS2008
-        deleteCodeblocks
-        deleteMakefiles
-        deleteXcode
-	    deleteEclipse
-    fi
-
-
-    #visual studio 2008
-    if [ "$platform" = "vs2008" ]; then
-	    #delete non needed vs files and rename
-        mv ${current_example}_$platform.vcproj $current_example.vcproj
-        mv ${current_example}_$platform.vcproj.user $current_example.vcproj.user
-        mv ${current_example}_$platform.sln $current_example.sln
-        perl -pi -e s/${example_name}_${platform}/${example_name}/g $current_example.sln
-
-        #delete other platform's project files
-	    deleteVS2010
-        deleteCodeblocks
-        deleteMakefiles
-        deleteXcode
-	    deleteEclipse	
-    fi
-
-    #android
-    if [ "$platform" = "android" ]; then
-        #delete other platform's project files
-        deleteCodeblocks
-        deleteMakefiles
-        deleteXcode
-	    deleteVS2008
-        deleteVS2010
-    fi
+    cd ${pkg_ofroot}
 }
 
 function createPackage {
     pkg_platform=$1
     pkg_version=$2
     pkg_ofroot=$3
+    main_ofroot=$4
     
     #remove previously created package 
     cd $pkg_ofroot/..
-	if [ $runOSXSLScript = 1 ]; then
-		rm -Rf of_preRelease_v${pkg_version}_osxSL*
-	else
-	    rm -Rf of_preRelease_v${pkg_version}_${pkg_platform}.*
-		rm -Rf of_preRelease_v${pkg_version}_${pkg_platform}_*
-    fi
-    echo "creating package $pkg_platform $version in $pkg_ofroot"
+	rm -Rf of_v${pkg_version}_${pkg_platform}${libs_abi}.*
+	rm -Rf of_v${pkg_version}_${pkg_platform}${libs_abi}_*
+    echo "Creating package $pkg_platform $version in $pkg_ofroot"
     
-    #delete other platforms example project files
-    cd $pkg_ofroot/apps/examples
+    #remove devApps folder
+    rm -r $pkg_ofroot/apps/devApps
+    
+    #remove projectGenerator folder
+    if [ "$pkg_platform" = "android" ] || [ "$pkg_platform" = "msys2" ]; then
+    	rm -rf $pkg_ofroot/apps/projectGenerator
+    fi
 
-    for example in $( find . -maxdepth 1 -mindepth 1 -type d )
-    do
-        echo deleting $example
-        deleteProjectFiles $pkg_platform $pkg_ofroot $example
-        cd $pkg_ofroot/apps/examples
-    done
+	cd $pkg_ofroot/examples
 
-
-    #delete other platforms addons examples project files
-    cd $pkg_ofroot/apps/addonsExamples
-
-    for example in $( find . -maxdepth 1 -mindepth 1 -type d )
-    do
-        deleteProjectFiles $pkg_platform $pkg_ofroot $example
-        cd $pkg_ofroot/apps/addonsExamples
-    done
-
-	#delete iphone examples in other platforms
-	cd $pkg_ofroot/apps
-
-	if [ "$pkg_platform" != "iphone" ]; then 
-		rm -Rf iPhoneSpecificExamples
-		rm -Rf iPhoneExamples
-		rm -Rf iPhoneAddonsExamples
+	#delete ios examples in other platforms
+	if [ "$pkg_platform" != "ios" ]; then 
+		rm -Rf ios
+		rm -Rf tvOS
 	fi
 
 	#delete android examples in other platforms
 	if [ "$pkg_platform" != "android" ]; then 
-		rm -Rf androidExamples
+		rm -Rf android
 	fi
 
 	#delete desktop examples in mobile packages
-	if [ "$pkg_platform" == "android" ] || [ "$pkg_platform" == "iphone" ]; then 
-		rm -Rf examples
-		rm -Rf addonsExamples
+	if [ "$pkg_platform" == "android" ] || [ "$pkg_platform" == "ios" ]; then 
+		rm -Rf 3d
+		rm -Rf communication
+		rm -Rf computer_vision
+		rm -Rf events
+		rm -Rf gl
+		rm -Rf gles
+		rm -Rf graphics
+		rm -Rf gui
+		rm -Rf input_output
+		rm -Rf math
+		rm -Rf shader
+		rm -Rf sound
+		rm -Rf strings
+		rm -Rf templates
+		rm -Rf threads
+		rm -Rf video
 	fi 
+	
+	#delete osx examples in linux
+	if [ "$pkg_platform" == "linux" ] || [ "$pkg_platform" == "linux64" ] || [ "$pkg_platform" == "linuxarmv6l" ] || [ "$pkg_platform" == "linuxarmv7l" ]; then
+	    rm -Rf video/osxHighPerformanceVideoPlayerExample
+	    rm -Rf video/osxVideoRecorderExample
+	fi
+	
+	if [ "$pkg_platform" == "linux" ] || [ "$pkg_platform" == "linux64" ]; then
+	    rm -Rf gles
+	fi
+	
+	if [ "$pkg_platform" == "linuxarmv6l" ] || [ "$pkg_platform" == "linuxarmv7l" ]; then
+	    rm -Rf addons/3DModelLoaderExample
+        rm -Rf addons/allAddonsExample
+        rm -Rf addons/assimpExample
+        rm -Rf addons/kinectExample
+        rm -Rf addons/vectorGraphicsExample
+        
+	    rm -Rf gl/glInfoExample
+        rm -Rf gl/alphaMaskingShaderExample
+        rm -Rf gl/billboardExample
+        rm -Rf gl/billboardRotationExample
+        rm -Rf gl/multiLightExample
+        rm -Rf gl/multiTextureShaderExample
+        rm -Rf gl/pointsAsTextures
+        rm -Rf gl/gpuParticleSystemExample
+        rm -Rf gl/vboMeshDrawInstancedExample
+        rm -Rf gl/shaderExample
+        rm -Rf gl/computeShaderParticlesExample
+        rm -Rf gl/computeShaderTextureExample
+        rm -Rf gl/pixelBufferExample
+        rm -Rf gl/textureBufferInstancedExample
+        rm -Rf gl/threadedPixelBufferExample
+  
+        rm -Rf utils/systemSpeakExample
+        rm -Rf utils/fileBufferLoadingCSVExample
+        
+        rm -Rf 3d/modelNoiseExample
+    fi
+    
+    if [ "$pkg_platform" == "linuxarmv6l" ]; then
+        rm -Rf utils/dragDropExample
+        rm -Rf utils/fileOpenSaveDialogExample
+	fi
+	
+	if [ "$pkg_platform" == "msys2" ] || [ "$pkg_platform" == "vs" ]; then
+	    rm -Rf video/osxHighPerformanceVideoPlayerExample
+	    rm -Rf video/osxVideoRecorderExample
+	    rm -Rf gles
+	fi
+	
+	if [ "$pkg_platform" == "osx" ]; then
+	    rm -Rf gles
+	    rm -Rf gl/computeShaderParticlesExample
+	    rm -Rf gl/computeShaderTextureExample
+	fi
+	
+	
+	
+	#delete tutorials by now
+	rm -Rf $pkg_ofroot/tutorials
+    
+	
+	
+    #create project files for platform
+    createProjectFiles $pkg_platform $pkg_ofroot
+	
 
     #delete other platform libraries
     if [ "$pkg_platform" = "linux" ]; then
-        otherplatforms="linux64 osx win_cb vs2008 vs2010 iphone android"
+        otherplatforms="linux64 linuxarmv6l linuxarmv7l osx msys2 vs ios tvos android"
     fi
 
     if [ "$pkg_platform" = "linux64" ]; then
-        otherplatforms="linux osx win_cb vs2008 vs2010 iphone android"
+        otherplatforms="linux linuxarmv6l linuxarmv7l osx msys2 vs ios tvos android"
     fi
 
+    if [ "$pkg_platform" = "linuxarmv6l" ]; then
+        otherplatforms="linux64 linux linuxarmv7l osx msys2 vs ios tvos android"
+    fi
+    
+    if [ "$pkg_platform" = "linuxarmv7l" ]; then
+        otherplatforms="linux64 linux linuxarmv6l osx msys2 vs ios tvos android"
+    fi
+    
     if [ "$pkg_platform" = "osx" ]; then
-        otherplatforms="linux linux64 win_cb vs2008 vs2010 iphone android"
+        otherplatforms="linux linux64 linuxarmv6l linuxarmv7l msys2 vs ios tvos android"
     fi
 
-    if [ "$pkg_platform" = "win_cb" ]; then
-        otherplatforms="linux linux64 osx vs2008 vs2010 iphone android"
+    if [ "$pkg_platform" = "msys2" ]; then
+        otherplatforms="linux linux64 linuxarmv6l linuxarmv7l osx vs ios tvos android"
     fi
 
-    if [ "$pkg_platform" = "vs2008" ]; then
-        otherplatforms="linux linux64 osx win_cb vs2010 iphone android"
+    if [ "$pkg_platform" = "vs" ]; then
+        otherplatforms="linux linux64 linuxarmv6l linuxarmv7l osx msys2 ios tvos android"
     fi
 
-    if [ "$pkg_platform" = "vs2010" ]; then
-        otherplatforms="linux linux64 osx win_cb vs2008 iphone android"
-    fi
-
-    if [ "$pkg_platform" = "iphone" ]; then
-        otherplatforms="linux linux64 win_cb vs2008 vs2010 android"
+    if [ "$pkg_platform" = "ios" ]; then
+        otherplatforms="linux linux64 linuxarmv6l linuxarmv7l msys2 vs android osx"
     fi
 
     if [ "$pkg_platform" = "android" ]; then
-        otherplatforms="linux linux64 osx win_cb vs2008 vs2010 iphone"
-    fi
-
-    #delete libraries for other platforms
-    cd $pkg_ofroot/libs  
-    for lib in $( find . -maxdepth 1 -mindepth 1 -type d )
-    do
-        echo $PWD
-        echo deleting $lib/lib
-        cd $lib/lib
-        rm -Rf $otherplatforms
-        cd $pkg_ofroot/libs 
-    done
-    if [ "$pkg_platform" = "osx" ]; then
-        rm -Rf $libsnotinmac
-    elif [ "$pkg_platform" = "linux" ] || [ "$pkg_platform" = "linux64" ]; then
-        rm -Rf $libsnotinlinux
-    elif [ "$pkg_platform" = "win_cb" ] || [ "$pkg_platform" = "vs2008" ] || [ "$pkg_platform" = "vs2010" ]; then
-        rm -Rf $libsnotinwindows
-    elif [ "$pkg_platform" = "android" ]; then
-        rm -Rf $libsnotinandroid
-    elif [ "$pkg_platform" = "iphone" ]; then
-        rm -Rf $libsnotiniphone
+        otherplatforms="linux linux64 linuxarmv6l linuxarmv7l osx msys2 vs ios tvos"
     fi
     
-    cd ${pkg_ofroot}/addons
-    for lib in $( ls -d */libs/*/lib/ )
-    do
-        cd ${lib}
-        echo $PWD
-        echo deleting $lib
-        rm -Rf $otherplatforms
-        cd $pkg_ofroot/addons
-    done
+    
+	#download and uncompress PG
+	echo "Creating projectGenerator"
+	mkdir -p $HOME/.tmp
+	export TMPDIR=$HOME/.tmp
+    if [ "$pkg_platform" = "vs" ]; then
+		cd ${pkg_ofroot}/apps/projectGenerator/frontend
+		npm install > /dev/null
+		npm run build:vs > /dev/null
+		mv dist/projectGenerator-win32-ia32 ${pkg_ofroot}/projectGenerator-vs
+		cd ${pkg_ofroot}
+		rm -rf apps/projectGenerator
+		cd ${pkg_ofroot}/projectGenerator-vs/resources/app/app/
+		wget http://ci.openframeworks.cc/projectGenerator/projectGenerator-vs.zip 2> /dev/null
+		unzip projectGenerator-vs.zip 2> /dev/null
+		rm projectGenerator-vs.zip
+		cd ${pkg_ofroot}
+		sed -i "s/osx/vs/g" projectGenerator-vs/resources/app/settings.json
+	fi
+    if [ "$pkg_platform" = "osx" ]; then
+		cd ${pkg_ofroot}/apps/projectGenerator/frontend
+		npm install > /dev/null
+		npm run build:osx > /dev/null
+		mv dist/projectGenerator-darwin-x64 ${pkg_ofroot}/projectGenerator-osx
+		cd ${pkg_ofroot}
+		rm -rf apps/projectGenerator
+		wget http://ci.openframeworks.cc/projectGenerator/projectGenerator_osx -O projectGenerator-osx/projectGenerator.app/Contents/Resources/app/app/projectGenerator 2> /dev/null
+		sed -i "s/osx/osx/g" projectGenerator-osx/projectGenerator.app/Contents/Resources/app/settings.json
+	fi
+    if [ "$pkg_platform" = "ios" ]; then
+		cd ${pkg_ofroot}/apps/projectGenerator/frontend
+		npm install > /dev/null
+		npm run build:osx > /dev/null
+		mv dist/projectGenerator-darwin-x64 ${pkg_ofroot}/projectGenerator-ios
+		cd ${pkg_ofroot}
+		rm -rf apps/projectGenerator
+		wget http://ci.openframeworks.cc/projectGenerator/projectGenerator_osx -O projectGenerator-ios/projectGenerator.app/Contents/Resources/app/app/projectGenerator 2> /dev/null
+		sed -i "s/osx/ios/g" projectGenerator-ios/projectGenerator.app/Contents/Resources/app/settings.json
+	fi
+	
+	if [ "$pkg_platform" = "linux" ]; then
+		cd ${pkg_ofroot}/apps/projectGenerator/frontend
+		npm install > /dev/null
+		npm run build:linux32 > /dev/null
+		mv dist/projectGenerator-linux-ia32 ${pkg_ofroot}/projectGenerator-linux
+		cd ${pkg_ofroot}
+		sed -i "s/osx/linux/g" projectGenerator-linux/resources/app/settings.json
+	fi
+	
+	if [ "$pkg_platform" = "linux64" ]; then
+		cd ${pkg_ofroot}/apps/projectGenerator/frontend
+		npm install > /dev/null
+		npm run build:linux64 > /dev/null
+		mv dist/projectGenerator-linux-x64 ${pkg_ofroot}/projectGenerator-linux64
+		cd ${pkg_ofroot}
+		sed -i "s/osx/linux64/g" projectGenerator-linux64/resources/app/settings.json
+	fi
+	
+	# linux remove other platform projects from PG source and copy ofxGui
+	if [ "$pkg_platform" = "linux" ] || [ "$pkg_platform" = "linux64" ] || [ "$pkg_platform" = "linuxarmv6l" ] || [ "$pkg_platform" = "linuxarmv7l" ]; then
+	    cd ${pkg_ofroot}
+		mv apps/projectGenerator/commandLine .
+		mv apps/projectGenerator/ofxProjectGenerator .
+		rm -rf apps/projectGenerator
+		mkdir apps/projectGenerator
+		mv commandLine apps/projectGenerator/
+		mv ofxProjectGenerator apps/projectGenerator/
+		cd apps/projectGenerator/commandLine
+		deleteCodeblocks
+		deleteVS
+		deleteXcode
+	fi
+
+    #download external dependencies
+    cd $pkg_ofroot/
+    if [ "$pkg_platform" = "osx" ]; then
+        scripts/osx/download_libs.sh
+        scripts/emscripten/download_libs.sh -n
+    elif [ "$pkg_platform" = "linux64" ]; then
+        scripts/linux/download_libs.sh -a 64$libs_abi
+        scripts/emscripten/download_libs.sh -n
+    elif [ "$pkg_platform" = "linuxarmv6l" ]; then
+        scripts/linux/download_libs.sh -a armv6l
+    elif [ "$pkg_platform" = "linuxarmv7l" ]; then
+        scripts/linux/download_libs.sh -a armv7l
+    elif [ "$pkg_platform" = "msys2" ]; then
+        scripts/msys2/download_libs.sh
+    elif [ "$pkg_platform" = "vs" ]; then
+        scripts/vs/download_libs.sh
+    elif [ "$pkg_platform" = "android" ]; then
+        scripts/android/download_libs.sh
+    elif [ "$pkg_platform" = "ios" ]; then
+        scripts/ios/download_libs.sh
+    fi
+    
+	#delete ofxAndroid in non android
+	if [ "$pkg_platform" != "android" ]; then
+		rm -Rf ofxAndroid
+		rm -Rf ofxUnitTests
+	fi
+	#delete ofxiPhone in non ios
+	if [ "$pkg_platform" != "ios" ]; then
+		rm -Rf ofxiPhone
+		rm -Rf ofxiOS
+		rm -Rf ofxUnitTests
+	fi
+	
+	#delete ofxMultiTouch & ofxAccelerometer in non mobile
+	if [ "$pkg_platform" != "android" ] && [ "$pkg_platform" != "ios" ]; then
+		rm -Rf ofxMultiTouch
+		rm -Rf ofxAccelerometer
+		rm -Rf ofxUnitTests
+	fi
+	
+	if [ "$pkg_platform" == "ios" ] || [ "$pkg_platform" == "android" ]; then
+	    rm -Rf ofxVectorGraphics
+   	    rm -Rf ofxKinect
+		rm -Rf ofxUnitTests
+	fi
+	
+	#delete unit tests by now
+	rm -Rf ${pkg_ofroot}/tests
+
+	#delete eclipse projects
+	if [ "$pkg_platform" != "android" ] && [ "$pkg_platform" != "linux" ] && [ "$pkg_platform" != "linux64" ] && [ "$pkg_platform" != "linuxarmv6l" ] && [ "$pkg_platform" != "linuxarmv7l" ]; then
+		cd ${pkg_ofroot}
+		deleteEclipse
+		if [ -f libs/openFrameworks/.settings ]; then
+    		rm -R libs/openFrameworks/.settings
+    	fi
+	fi
+	
+	#android, move paths.default.make to paths.make
+	if [ "$pkg_platform" == "android" ]; then
+	    cd ${pkg_ofroot}
+	    mv libs/openFrameworksCompiled/project/android/paths.default.make libs/openFrameworksCompiled/project/android/paths.make
+	fi
 
     #delete other platforms OF project files
     cd ${pkg_ofroot}/libs/openFrameworksCompiled/lib
@@ -317,38 +451,22 @@ function createPackage {
     cd ${pkg_ofroot}/libs/openFrameworksCompiled/project
     rm -Rf $otherplatforms
 
-	cd ${pkg_ofroot}/libs
-	#delete specific include folders non-android
-	if [ "$pkg_platform" != "android" ]; then
-		rm -Rf $( ls -d */include_android )
-	fi
-
-	#delete specific include folders for non-iphone
-	if [ "$pkg_platform" != "iphone" ]; then
-		rm -Rf $( ls -d */include_iphone )
-	fi
-
-	#delete generic includes for libs that has specific ones in android
-	if [ "$pkg_platform" == "android" ] || [ "$pkg_platform" == "iphone" ]; then
-		rm -Rf glu/include
-	fi
-
-    #delete dynamic libraries for other platforms
-    cd $pkg_ofroot/export
-    rm -Rf $otherplatforms
-    if [ "$pkg_platform" = "osx" ]; then
-        cd $pkg_ofroot
-        rmdir export
-    fi
-
     #delete scripts
     cd $pkg_ofroot/scripts
-	if [ "$pkg_platform" != "linux64" ]; then
+	if [ "$pkg_platform" != "linux64" ] && [ "$pkg_platform" != "linuxarmv6l" ] && [ "$pkg_platform" != "linuxarmv7l" ]; then
     	rm -Rf $otherplatforms
 	else
-    	rm -Rf win_cb vs2008 vs2010 osx iphone
+    	rm -Rf msys2 vs osx ios
 	fi
-    rm create_package.sh
+	
+    #delete omap4 scripts for non armv7l
+	if [ "$pkg_platform" = "linux64" ] || [ "$pkg_platform" = "linux" ] || [ "$pkg_platform" = "linuxarmv6l" ]; then
+	    rm -Rf linux/ubuntu-omap4
+	fi
+	
+	if [ "$pkg_platform" == "ios" ]; then
+		rm -Rf osx
+	fi
 
     #delete .svn dirs
     cd $pkg_ofroot
@@ -359,119 +477,99 @@ function createPackage {
     rm -Rf $(find . -name .gitignore)
     
     #delete dev folders
-    cd $pkg_ofroot/apps
-    rm -Rf devApps
     cd ${pkg_ofroot}/scripts
     rm -Rf dev
+    rm */download_libs.sh
 
 	#delete xcode templates in other platforms
 	cd $pkg_ofroot
-	if [ "$pkg_platform" != "osx" ] && [ "$pkg_platform" != "iphone" ]; then
+	if [ "$pkg_platform" != "osx" ] && [ "$pkg_platform" != "ios" ]; then
 		rm -Rf "xcode templates"
 	fi
-	
-	cd ${pkg_ofroot}/addons
-	#delete ofxAndroid in non android
-	if [ "$pkg_platform" != "android" ]; then
-		rm -Rf ofxAndroid
-	fi
-	#delete ofxIphone in non iphone
-	if [ "$pkg_platform" != "iphone" ]; then
-		rm -Rf ofxiPhone
-	fi
-
-	#delete eclipse project
-	rm $(find . -name .*project)
-
-	#download and copy OF compiled
-	cd $pkg_ofroot/libs/openFrameworksCompiled/lib/${pkg_platform}
-    if [ "$pkg_platform" = "win_cb" ]; then
-		wget http://openframeworks.cc/git_pkgs/OF_compiled/${pkg_platform}/openFrameworks.lib
-		wget http://openframeworks.cc/git_pkgs/OF_compiled/${pkg_platform}/openFrameworksDebug.lib
-	fi
-
-    #if snow leopard change 10.4u to 10.5
-    if [ $runOSXSLScript = 1 ]; then
-        cd $pkg_ofroot
-        echo "replacing 10.4u with 10.5 for snow leopard"
-        find . -name '*.pbxproj' | xargs perl -pi -e 's/10\.4u/10\.5/g'
-        pkg_platform="osxSL"
-    fi
+    echo ----------------------------------------------------------------------
+    echo
+    echo
     
     #choose readme
     cd $pkg_ofroot
-    if [ "$platform" = "linux" ] || [ "$platform" = "linux64" ]; then
-        mv readme.linux readme
+    if [ "$platform" = "linux" ] || [ "$platform" = "linux64" ] || [ "$platform" = "linuxarmv6l" ] || [ "$platform" = "linuxarmv7l" ]; then
+        cp docs/linux.md INSTALL.md
     fi
     
-    if [ "$platform" = "vs2008" ]; then
-        mv readme.vs2008 readme
+    if [ "$platform" = "vs" ]; then
+        cp docs/visualstudio.md INSTALL.md
     fi
     
-    if [ "$platform" = "win_cb" ]; then
-        mv readme.win_cb readme
+    if [ "$platform" = "msys2" ]; then
+        cp docs/msys2.md INSTALL.md
     fi
     
-    if [ "$platform" = "osx" ]; then
-        mv readme.osx readme
+    if [ "$platform" = "osx" ] || [ "$platform" = "ios" ]; then
+        cp docs/osx.md INSTALL.md
     fi
 
     if [ "$platform" = "android" ]; then
-        mv readme.android readme
+        cp docs/android_eclipse.md INSTALL_ECLIPSE.md
+        cp docs/android_studio.md INSTALL_ANDROID_STUDIO.md
     fi
     
-    rm readme.*
-    mv readme readme.txt
+    rm CONTRIBUTING.md
 
-    #create compressed package
-    cd $pkg_ofroot/..
-    if [ "$pkg_platform" = "linux" ] || [ "$pkg_platform" = "linux64" ] || [ "$pkg_platform" = "android" ]; then
-        mkdir of_preRelease_v${pkg_version}_${pkg_platform}_FAT
-        mv openFrameworks/* of_preRelease_v${pkg_version}_${pkg_platform}_FAT
-        tar czf of_preRelease_v${pkg_version}_${pkg_platform}_FAT.tar.gz of_preRelease_v${pkg_version}_${pkg_platform}_FAT
-        mv of_preRelease_v${pkg_version}_${pkg_platform}_FAT of_preRelease_v${pkg_version}_${pkg_platform}
-        rm -Rf of_preRelease_v${pkg_version}_${pkg_platform}/addons of_preRelease_v${pkg_version}_${pkg_platform}/apps/addonsExamples
-        tar czf of_preRelease_v${pkg_version}_${pkg_platform}.tar.gz of_preRelease_v${pkg_version}_${pkg_platform}
-        rm -Rf of_preRelease_v${pkg_version}_${pkg_platform}
+    #copy empty example
+    cd $pkg_ofroot
+    mkdir -p apps/myApps 
+    if [ "$pkg_platform" = "android" ]; then
+        cp -r examples/android/androidEmptyExample apps/myApps/
+    elif [ "$pkg_platform" = "ios" ]; then
+        cp -r examples/ios/emptyExample apps/myApps/
     else
-        mkdir of_preRelease_v${pkg_version}_${pkg_platform}_FAT
-        mv openFrameworks/* of_preRelease_v${pkg_version}_${pkg_platform}_FAT
-        zip -r of_preRelease_v${pkg_version}_${pkg_platform}_FAT.zip of_preRelease_v${pkg_version}_${pkg_platform}_FAT
-        mv of_preRelease_v${pkg_version}_${pkg_platform}_FAT of_preRelease_v${pkg_version}_${pkg_platform}        
-        rm -Rf of_preRelease_v${pkg_version}_${pkg_platform}/addons of_preRelease_v${pkg_version}_${pkg_platform}/apps/addonsExamples
-        zip -r of_preRelease_v${pkg_version}_${pkg_platform}.zip of_preRelease_v${pkg_version}_${pkg_platform}
-        rm -Rf of_preRelease_v${pkg_version}_${pkg_platform}
+        cp -r examples/templates/emptyExample apps/myApps/
+    fi
+    
+    #create compressed package
+    if [ "$pkg_platform" = "linux" ] || [ "$pkg_platform" = "linux64" ] || [ "$pkg_platform" = "android" ] || [ "$pkg_platform" = "linuxarmv6l" ] || [ "$pkg_platform" = "linuxarmv7l" ]; then
+        echo "compressing package to of_v${pkg_version}_${pkg_platform}${libs_abi}_release.tar.gz"
+        cd $pkg_ofroot/..
+        mkdir of_v${pkg_version}_${pkg_platform}${libs_abi}_release
+        mv ${pkgfolder}/* of_v${pkg_version}_${pkg_platform}${libs_abi}_release
+        COPYFILE_DISABLE=true tar czf of_v${pkg_version}_${pkg_platform}${libs_abi}_release.tar.gz of_v${pkg_version}_${pkg_platform}${libs_abi}_release
+        rm -Rf of_v${pkg_version}_${pkg_platform}${libs_abi}_release
+    else
+        echo "compressing package to of_v${pkg_version}_${pkg_platform}_release.zip"
+        cd $pkg_ofroot/..
+        mkdir of_v${pkg_version}_${pkg_platform}_release
+        mv ${pkgfolder}/* of_v${pkg_version}_${pkg_platform}_release
+        zip --symlinks -r of_v${pkg_version}_${pkg_platform}_release.zip of_v${pkg_version}_${pkg_platform}_release > /dev/null
+        rm -Rf of_v${pkg_version}_${pkg_platform}_release
     fi
 }
 
+set -o pipefail  # trace ERR through pipes
+set -o errtrace  # trace ERR through 'time command' and other functions
+set -o nounset   # set -u : exit the script if you try to use an uninitialized variable
+set -o errexit   # set -e : exit the script if any statement returns a non-true return value
 
-if [ "$platform" = "all" ]; then
-    for eachplatform in win_cb linux linux64 vs2008 vs2010 osx 
-    do
-        cd $packageroot
-        mkdir of_preRelease_v${version}_${eachplatform}
-        cp -R addons apps export libs other scripts of_preRelease_v${version}_${eachplatform}
-        cd of_preRelease_v${version}_${eachplatform}
-        createPackage $eachplatform $2 $PWD
-    done
-    
-    cd $packageroot
-    echo dir: $PWD
-    mkdir of_preRelease_v${version}_all_FAT
-    mv addons apps export libs other scripts $packageroot/of_preRelease_v${version}_all_FAT
-    tar czf of_preRelease_v$version_all_FAT.tar.gz of_preRelease_v${version}_all_FAT
-    mv of_preRelease_v${version}_all_FAT of_preRelease_v${version}_all
-    rm -Rf of_preRelease_v${version}_all/addons of_preRelease_v${version}_all/apps/addonsExamples
-    tar czf of_preRelease_v$version_all.tar.gz of_preRelease_v$version_all
-    rm -Rf of_preRelease_v${version}_all
-    mv * $packageroot/..
-    #rm -Rf $packageroot
-else
-    createPackage $platform $version $packageroot
-fi
+cleanup() {
+    cd $packageroot/..  
+    rm -rf ${pkgfolder} 
+    rm -rf $HOME/.tmp/npm*
+}
+trap cleanup 0
 
-cd $packageroot
-git reset --hard
+error() {
+  local parent_lineno="$1"
+  if [[ "$#" = "3" ]] ; then
+    local message="$2"
+    local code="${3:-1}"
+    echo "Error on or near line ${parent_lineno}: ${message}; exiting with status ${code}"
+  else
+    local code="${2:-1}"
+    echo "Error on or near line ${parent_lineno}; exiting with status ${code}"
+  fi
+  rm -rf $HOME/.tmp/npm*
+}
+trap 'error ${LINENO}' ERR
 
-cd $packageroot/.. 
-    
+createPackage $platform $version $packageroot $of_root    
+
+ 

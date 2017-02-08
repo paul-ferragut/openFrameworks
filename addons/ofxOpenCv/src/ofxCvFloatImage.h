@@ -8,9 +8,7 @@
 *
 */
 
-
-#ifndef OFX_CV_FLOAT_IMAGE_H
-#define OFX_CV_FLOAT_IMAGE_H
+#pragma once
 
 
 #include "ofxCvImage.h"
@@ -142,7 +140,8 @@ class ofxCvFloatImage : public ofxCvImage {
     
 
   protected:
-
+    void allocateTexture();
+    void allocatePixels(int w, int h);
     void init();
     virtual void convertFloatToGray( IplImage* floatImg, IplImage* grayImg );
     virtual void convertGrayToFloat( IplImage* grayImg, IplImage* floatImg );
@@ -159,9 +158,3 @@ class ofxCvFloatImage : public ofxCvImage {
     float scaleMax;
     
 };
-
-
-
-#endif
-
-

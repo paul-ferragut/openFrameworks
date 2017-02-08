@@ -1,2 +1,2 @@
-pacman -S mpg123 gstreamer0.10-ugly-plugins
+pacman -Sy --needed mpg123 gst-plugins-ugly
 

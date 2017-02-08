@@ -10,55 +10,63 @@ public:
 	~ofGstVideoPlayer();
 
 	/// needs to be called before loadMovie
-	void 	setPixelFormat(ofPixelFormat pixelFormat);
-	bool 	loadMovie(string uri);
+	bool 	setPixelFormat(ofPixelFormat pixelFormat);
+	ofPixelFormat	getPixelFormat() const;
+	
+	void	loadAsync(string name);
+	bool 	load(string uri);
 
 	void 	update();
 
-	int		getCurrentFrame();
-	int		getTotalNumFrames();
+	int		getCurrentFrame() const;
+	int		getTotalNumFrames() const;
 
 	void 	firstFrame();
 	void 	nextFrame();
 	void 	previousFrame();
 	void 	setFrame(int frame);  // frame 0 = first frame...
 
-	bool	isStream();
+	bool	isStream() const;
 
 	void 	play();
 	void 	stop();
 	void 	setPaused(bool bPause);
-	bool 	isPaused();
-	bool 	isLoaded();
-	bool 	isPlaying();
+	bool 	isPaused() const;
+	bool 	isLoaded() const;
+	bool 	isPlaying() const;
 
-	float	getPosition();
-	float 	getSpeed();
-	float 	getDuration();
-	bool  	getIsMovieDone();
+	float	getPosition() const;
+	float 	getSpeed() const;
+	float 	getDuration() const;
+	bool  	getIsMovieDone() const;
 
 	void 	setPosition(float pct);
-	void 	setVolume(int volume);
+	void 	setVolume(float volume);
 	void 	setLoopState(ofLoopType state);
-	int		getLoopState();
+	ofLoopType 	getLoopState() const;
 	void 	setSpeed(float speed);
 	void 	close();
 
-	bool 			isFrameNew();
+	bool 			isFrameNew() const;
 
-	unsigned char * getPixels();
-	ofPixelsRef		getPixelsRef();
+	ofPixels&		getPixels();
+	const ofPixels& getPixels() const;
+	ofTexture * getTexturePtr();
 
-	float 			getHeight();
-	float 			getWidth();
+	float 			getHeight() const;
+	float 			getWidth() const;
 
 	void setFrameByFrame(bool frameByFrame);
+	void setThreadAppSink(bool threaded);
+	bool isThreadedAppSink() const;
+	bool isFrameByFrame() const;
 
 	ofGstVideoUtils * getGstVideoUtils();
 
 protected:
-	bool	allocate();
-	void	on_stream_prepared();
+	bool allocate();
+	bool createPipeline(string uri);
+	void on_stream_prepared();
 
 	// return true to set the message as attended so upstream doesn't try to process it
 	virtual bool on_message(GstMessage* msg){return false;};
@@ -68,5 +76,8 @@ private:
 	guint64				nFrames;
 	int 				fps_n, fps_d;
 	bool				bIsStream;
+	bool				bIsAllocated;
+	bool				bAsyncLoad;
+	bool				threadAppSink;
 	ofGstVideoUtils		videoUtils;
 };

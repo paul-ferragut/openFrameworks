@@ -1,0 +1,117 @@
+language: c++
+compiler: gcc
+sudo: true
+env:
+  global:
+    secure: LBTN8d1hS7ocrqDwxLQqU0tfK3FMCXBI8q1yASEjtkp/v5HEyFkbj22H4jXZ20SkpCTlIG2L6i/fU3d6KzJUzTFuxkQEWsnjkj4jAhxGEWRsT1RV6VcUPQDGLHapXwTy+ZYgMNxE7aAdQaBskPHdVzAhjrzlTwVuKp6KjFn+kMU=
+
+matrix:
+  include:
+  # fully specify builds, include can't dynamically expand matrix entries
+  # relative order of sudo and env is important so that addons: is recognized
+
+  - os: linux
+    dist: trusty
+    sudo: required
+    env: TARGET="linux64"
+    addons:
+      apt:
+        sources:
+          - ubuntu-toolchain-r-test
+        packages:
+          - gcc-4.9
+          - g++-4.9
+          - gdb
+
+
+  - os: linux
+    sudo: required
+    dist: trusty
+    env: TARGET="linuxarmv6l"
+
+
+  - os: linux
+    sudo: false
+    env: TARGET="linuxarmv7l"
+    cache:
+      directories:
+        - ~/rpi2_toolchain
+        - ~/firmware-master
+        - ~/archlinux
+
+
+  - os: linux
+    sudo: false
+    env: TARGET="emscripten"
+    addons:
+      apt:
+        sources:
+          - ubuntu-toolchain-r-test
+        packages:
+          - libstdc++6
+
+  - os: osx
+    osx_image: xcode8
+    compiler: clang
+    env: TARGET="osx"
+
+
+  - os: osx
+    osx_image: xcode8
+    compiler: clang
+    env: TARGET="ios"
+
+
+  - os: osx
+    osx_image: xcode8
+    compiler: clang
+    env: TARGET="tvos"
+
+
+  - os: linux
+    sudo: false
+    env: TARGET="android" OPT="armv7"
+    cache:
+      directories:
+        - ~/android-ndk-r12b
+
+
+  - os: linux
+    sudo: false
+    env: TARGET="android" OPT="x86"
+    cache:
+      directories:
+        - ~/android-ndk-r12b
+
+
+  # Exclude the default build that would otherwise be generated
+  # see https://github.com/travis-ci/travis-ci/issues/1228
+  exclude:
+    - compiler: gcc
+
+install:
+  - if [ -f scripts/ci/$TARGET/install.sh ]; then
+        scripts/ci/$TARGET/install.sh;
+    fi
+  - if [ "$TARGET" == "linux64" ]; then
+        scripts/linux/download_libs.sh -a 64;
+    elif [ "$TARGET" == "linuxarmv6l" ]; then
+        scripts/linux/download_libs.sh -a armv6l;
+    elif [ "$TARGET" == "linuxarmv7l" ]; then
+        scripts/linux/download_libs.sh -a armv7l;
+    elif [ "$TARGET" == "tvos" ]; then
+        scripts/ios/download_libs.sh;
+    else
+        scripts/$TARGET/download_libs.sh;
+    fi
+
+
+script:
+  - scripts/ci/$TARGET/build.sh $OPT
+  - if [ "$TARGET" == "osx" ] || [ "$TARGET" == "linux64" ]; then
+      scripts/ci/$TARGET/run_tests.sh;
+    fi
+  - scripts/ci/upload_of_lib.sh
+
+git:
+  depth: 10

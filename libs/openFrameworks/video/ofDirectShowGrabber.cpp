@@ -34,7 +34,7 @@ ofDirectShowGrabber::~ofDirectShowGrabber(){
 
 
 //--------------------------------------------------------------------
-bool ofDirectShowGrabber::initGrabber(int w, int h){
+bool ofDirectShowGrabber::setup(int w, int h){
 
 	//---------------------------------
 	#ifdef OF_VIDEO_CAPTURE_DIRECTSHOW
@@ -42,7 +42,7 @@ bool ofDirectShowGrabber::initGrabber(int w, int h){
 
 		if (bChooseDevice){
 			device = deviceID;
-			ofLog(OF_LOG_NOTICE, "choosing %i", deviceID);
+			ofLogNotice("ofDirectShowGrabber") << "initGrabber(): choosing " << deviceID;
 		} else {
 			device = 0;
 		}
@@ -73,11 +73,11 @@ bool ofDirectShowGrabber::initGrabber(int w, int h){
 			}
 
 
-			pixels.allocate(width, height, 24);
+			pixels.allocate(width, height, 3);
 			return true;
 		} else {
-			ofLog(OF_LOG_ERROR, "error allocating a video device");
-			ofLog(OF_LOG_ERROR, "please check your camera with AMCAP or other software");
+			ofLogError("ofDirectShowGrabber") << "initGrabber(): error allocating a video device";
+			ofLogError("ofDirectShowGrabber") << "initGrabber(): please check your camera with AMCAP or other software";
 			bGrabberInited = false;
 			return false;
 		}
@@ -88,20 +88,49 @@ bool ofDirectShowGrabber::initGrabber(int w, int h){
 
 }
 
-//--------------------------------------------------------------------
-void ofDirectShowGrabber::listDevices(){
+//---------------------------------------------------------------------------
+bool ofDirectShowGrabber::setPixelFormat(ofPixelFormat pixelFormat){
+	//note as we only support RGB we are just confirming that this pixel format is supported
+	if( pixelFormat == OF_PIXELS_RGB ){
+		return true;
+	}
+	ofLogWarning("ofDirectShowGrabber") << "setPixelFormat(): requested pixel format not supported";
+	return false;
+}
 
-	//---------------------------------
+//---------------------------------------------------------------------------
+ofPixelFormat ofDirectShowGrabber::getPixelFormat() const {
+	//note if you support more than one pixel format you will need to return a ofPixelFormat variable. 
+	return OF_PIXELS_RGB;
+}
+
+//--------------------------------------------------------------------
+vector<ofVideoDevice> ofDirectShowGrabber::listDevices() const {
+    
+    vector <ofVideoDevice> devices; 
+	
+    //---------------------------------
 	#ifdef OF_VIDEO_CAPTURE_DIRECTSHOW
 	//---------------------------------
-		ofLog(OF_LOG_NOTICE, "---");
-		VI.listDevices();
-		ofLog(OF_LOG_NOTICE, "---");
+		ofLogNotice() << "---";
+        VI.listDevices();
+        ofLogNotice() << "---";
+        
+		vector <string> devList = VI.getDeviceList(); 
+        
+        for(int i = 0; i < devList.size(); i++){
+            ofVideoDevice vd; 
+            vd.deviceName = devList[i]; 
+            vd.id = i;  
+            vd.bAvailable = true; 
+            devices.push_back(vd); 
+        }
 
 	//---------------------------------
 	#endif
 	//---------------------------------
-
+    
+    return devices;
 }
 
 //--------------------------------------------------------------------
@@ -163,9 +192,9 @@ void ofDirectShowGrabber::update(){
 
 							int posPix = (((int)posy * inputW * 3) + ((int)posx * 3));
 
-							pixels.getPixels()[(j*width*3) + i*3    ] = viPixels[posPix  ];
-							pixels.getPixels()[(j*width*3) + i*3 + 1] = viPixels[posPix+1];
-							pixels.getPixels()[(j*width*3) + i*3 + 2] = viPixels[posPix+2];
+							pixels.getData()[(j*width*3) + i*3    ] = viPixels[posPix  ];
+							pixels.getData()[(j*width*3) + i*3 + 1] = viPixels[posPix+1];
+							pixels.getData()[(j*width*3) + i*3 + 2] = viPixels[posPix+2];
 
 						}
 					}
@@ -213,28 +242,33 @@ void ofDirectShowGrabber::clearMemory(){
 }
 
 //---------------------------------------------------------------------------
-unsigned char * ofDirectShowGrabber::getPixels(){
-	return pixels.getPixels();
+ofPixels& ofDirectShowGrabber::getPixels(){
+	return pixels;
 }
 
 //---------------------------------------------------------------------------
-ofPixelsRef ofDirectShowGrabber::getPixelsRef(){
+const ofPixels& ofDirectShowGrabber::getPixels() const {
 	return pixels;
 }
 
 //--------------------------------------------------------------------
-float ofDirectShowGrabber::getWidth(){
+float ofDirectShowGrabber::getWidth() const {
 	return width;
 }
 
 //--------------------------------------------------------------------
-float ofDirectShowGrabber::getHeight(){
+float ofDirectShowGrabber::getHeight() const {
 	return height;
 }
 
 //---------------------------------------------------------------------------
-bool  ofDirectShowGrabber::isFrameNew(){
+bool  ofDirectShowGrabber::isFrameNew() const{
 	return bIsFrameNew;
+}
+
+//---------------------------------------------------------------------------
+bool  ofDirectShowGrabber::isInitialized() const{
+	return bGrabberInited;
 }
 
 //--------------------------------------------------------------------

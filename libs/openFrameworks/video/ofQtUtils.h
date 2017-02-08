@@ -3,8 +3,7 @@
 #include "ofConstants.h"
 
 #if defined (TARGET_WIN32) || defined (TARGET_OSX)
-
-
+#if !defined(MAC_OS_X_VERSION_10_12) || MAC_OS_X_VERSION_MAX_ALLOWED < MAC_OS_X_VERSION_10_12
 
 #ifdef TARGET_OSX
 	#include <QuickTime/QuickTime.h>
@@ -19,9 +18,11 @@
 	//#include <MoviesFormat.h>
 #endif
 
+#ifndef MAC_OS_X_VERSION_10_7
+
 //p2cstr depreciation fix - thanks pickard!
 #ifdef TARGET_OSX
-	#define p2cstr(aStr) CFStringGetCStringPtr(CFStringCreateWithPascalString(NULL, aStr, kCFStringEncodingMacRoman),kCFStringEncodingMacRoman)
+	#define p2cstr(aStr) CFStringGetCStringPtr(CFStringCreateWithPascalString(nullptr, aStr, kCFStringEncodingMacRoman),kCFStringEncodingMacRoman)
 #endif
 
 //-------------------------- helpful for rgba->rgb conversion
@@ -51,4 +52,7 @@ void            MovieGetStaticFrameRate(Movie inMovie, double *outStaticFrameRat
 	OSErr	SaveSettingsPreference(CFStringRef inKey, UserData inUserData);
 #endif
 
+#endif //OS 10.7 guard
+
+#endif
 #endif

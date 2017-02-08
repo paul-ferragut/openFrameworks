@@ -1,9 +1,12 @@
-#ifndef __ofxXmlSettings__
-#define __ofxXmlSettings__
+#pragma once
 
 #include "ofMain.h"
 #include <string.h>
+#if (_MSC_VER)
+#include "../libs/tinyxml.h"
+#else
 #include "tinyxml.h"
+#endif
 
 using namespace std;
 
@@ -52,21 +55,24 @@ class ofxXmlSettings{
 		void setVerbose(bool _verbose);
 
 		bool loadFile(const string& xmlFile);
-		void saveFile(const string& xmlFile);
-		void saveFile();
+		bool saveFile(const string& xmlFile);
+		bool saveFile();
+
+		bool load(const string & path);
+		bool save(const string & path);
 
 		void clearTagContents(const string& tag, int which = 0);
 		void removeTag(const string& tag, int which = 0);
 
-		bool tagExists(const string& tag, int which = 0);
+		bool tagExists(const string& tag, int which = 0) const;
 
 		// removes all tags from within either the whole document
 		// or the tag you are currently at using pushTag
 		void	clear();
 
-		int 	getValue(const string&  tag, int            defaultValue, int which = 0);
-		double 	getValue(const string&  tag, double         defaultValue, int which = 0);
-		string 	getValue(const string&  tag, const string& 	defaultValue, int which = 0);
+		int 	getValue(const string&  tag, int            defaultValue, int which = 0) const;
+		double 	getValue(const string&  tag, double         defaultValue, int which = 0) const;
+		string 	getValue(const string&  tag, const string& 	defaultValue, int which = 0) const;
 
 		int 	setValue(const string&  tag, int            value, int which = 0);
 		int 	setValue(const string&  tag, double         value, int which = 0);
@@ -91,7 +97,7 @@ class ofxXmlSettings{
 		//use pushTag and popTag to get number of tags whithin other tags
 		// both getNumTags("PT"); and getNumTags("PT:X"); will just return the
 		//number of <PT> tags at the current root level.
-		int		getNumTags(const string& tag);
+		int		getNumTags(const string& tag) const;
 
 		//-- addValue/addTag
 		//adds a tag to the document even if a tag with the same name
@@ -107,40 +113,39 @@ class ofxXmlSettings{
 
 		int		addTag(const string& tag); //adds an empty tag at the current level
 
-    
         // Attribute-related methods
 		int		addAttribute(const string& tag, const string& attribute, int value, int which = 0);
 		int		addAttribute(const string& tag, const string& attribute, double value, int which = 0);
 		int		addAttribute(const string& tag, const string& attribute, const string& value, int which = 0);
-		
+
 		int		addAttribute(const string& tag, const string& attribute, int value);
 		int		addAttribute(const string& tag, const string& attribute, double value);
 		int		addAttribute(const string& tag, const string& attribute, const string& value);
-		
+
 		void	removeAttribute(const string& tag, const string& attribute, int which = 0);
 		void	clearTagAttributes(const string& tag, int which = 0);
-		
-		int		getNumAttributes(const string& tag, int which = 0);
-		
-		bool	attributeExists(const string& tag, const string& attribute, int which = 0);
-		
-		bool    getAttributeNames(const string& tag, vector<string>& outNames, int which = 0);
-		
-		int		getAttribute(const string& tag, const string& attribute, int defaultValue, int which = 0);
-		double	getAttribute(const string& tag, const string& attribute, double defaultValue, int which = 0);
-		string	getAttribute(const string& tag, const string& attribute, const string& defaultValue, int which = 0);
-		
+
+		int		getNumAttributes(const string& tag, int which = 0) const;
+
+		bool	attributeExists(const string& tag, const string& attribute, int which = 0) const;
+
+		bool    getAttributeNames(const string& tag, vector<string>& outNames, int which = 0) const;
+
+		int		getAttribute(const string& tag, const string& attribute, int defaultValue, int which = 0) const;
+		double	getAttribute(const string& tag, const string& attribute, double defaultValue, int which = 0) const;
+		string	getAttribute(const string& tag, const string& attribute, const string& defaultValue, int which = 0) const;
+
 		int		setAttribute(const string& tag, const string& attribute, int value, int which = 0);
 		int		setAttribute(const string& tag, const string& attribute, double value, int which = 0);
 		int		setAttribute(const string& tag, const string& attribute, const string& value, int which = 0);
-		
+
 		int		setAttribute(const string& tag, const string& attribute, int value);
 		int		setAttribute(const string& tag, const string& attribute, double value);
 		int		setAttribute(const string& tag, const string& attribute, const string& value);
 
 		bool	loadFromBuffer( string buffer );
-		void	copyXmlToString(string & str);
-	
+		void	copyXmlToString(string & str) const;
+
 		TiXmlDocument 	doc;
 		bool 			bDocLoaded;
 
@@ -149,18 +154,18 @@ class ofxXmlSettings{
 		TiXmlHandle     storedHandle;
 		int             level;
 
-    
-		int 	writeTag(const string&  tag, const string& valueString, int which = 0);
-		bool 	readTag(const string&  tag, TiXmlHandle& valHandle, int which = 0);	// max 1024 chars...
 
-    
+		int 	writeTag(const string&  tag, const string& valueString, int which = 0);
+		bool 	readTag(const string&  tag, TiXmlHandle& valHandle, int which = 0) const;	// max 1024 chars...
+
+
 		int		writeAttribute(const string& tag, const string& attribute, const string& valueString, int which = 0);
 
-        TiXmlElement* getElementForAttribute(const string& tag, int which);
-        bool readIntAttribute(const string& tag, const string& attribute, int& valueString, int which);
-        bool readDoubleAttribute(const string& tag, const string& attribute, double& outValue, int which);
-        bool readStringAttribute(const string& tag, const string& attribute, string& outValue, int which);
-};
+		TiXmlElement* getElementForAttribute(const string& tag, int which) const;
+		bool readIntAttribute(const string& tag, const string& attribute, int& valueString, int which) const;
+		bool readDoubleAttribute(const string& tag, const string& attribute, double& outValue, int which) const;
+		bool readStringAttribute(const string& tag, const string& attribute, string& outValue, int which) const;
+};   
 
-#endif
-
+void ofSerialize(ofxXmlSettings & settings, const ofAbstractParameter & parameter);
+void ofDeserialize(const ofxXmlSettings & settings, ofAbstractParameter & parameter);

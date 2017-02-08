@@ -1,94 +1,135 @@
-*.mode*
-build/
-obj/
-*.o
+#########################
+# openFrameworks patterns
+#########################
+
+# build files
 openFrameworks.a
 openFrameworksDebug.a
 openFrameworksUniversal.a
+libs/openFrameworksCompiled/lib/*/*
+!libs/openFrameworksCompiled/lib/*/.gitkeep
+
+# apothecary
+scripts/apothecary
+
+# rule to avoid non-official addons going into git
+# see addons/.gitignore
+addons/*
+
+# rule to avoid non-official apps going into git
+# see apps/.gitignore
+apps/*
+
+# rule to ignore compiled / downloaded libs
+/libs/*
+!/libs/openFrameworks
+!/libs/openFrameworksCompiled
+
+# also, see examples/.gitignore
+
+#########################
+# general
+#########################
+
+[Bb]uild/
+[Oo]bj/
+*.o
+examples/**/[Dd]ebug*/
+examples/**/[Rr]elease*/
+examples/**/gcc-debug/
+examples/**/gcc-release/
+tests/**/[Dd]ebug*/
+tests/**/[Rr]elease*/
+tests/**/gcc-debug/
+tests/**/gcc-release/
+*.mode*
 *.app/
+*.pyc
+.svn/
+*.log
+*.cpp.eep
+*.cpp.elf
+*.cpp.hex
 
-#rule to avoid non-official addons going into git
-#see addons/.gitignore
-addons/**
+#########################
+# IDE
+#########################
 
-#xcode files
+# XCode
 *.pbxuser
+*.perspective
 *.perspectivev3
-apps/examples/*/*.xcodeproj
-apps/examples/*/Project.xcconfig
-apps/examples/*/openFrameworks-Info.plist
-apps/addonsExamples/*/*.xcodeproj
-apps/addonsExamples/*/Project.xcconfig
-apps/addonsExamples/*/openFrameworks-Info.plist
+*.mode1v3
+*.mode2v3
+# XCode 4
+xcuserdata
+*.xcworkspace
 
-#codeblocks files
-apps/*/*/*.layout
-apps/*/*/*.depend
-apps/*/*/bin/clickToLaunch*
-apps/*/*/bin/libs
-apps/*/*/obj
-apps/examples/*/*.cbp
-apps/examples/*/*.workspace
-apps/addonsExamples/*/*.cbp
-apps/addonsExamples/*/*.workspace
+# Code::Blocks
+*.depend
+*.layout
 
-#rule to avoid non-official apps going into git
-#see apps/.gitignore
-apps/**
-
-#codeblocks OF lib files
-libs/openFrameworksCompiled/project/*/*.depend
-libs/openFrameworksCompiled/project/*/*.layout
-
-#linux temporary files
-*~
-
-#vs2010 user files
+# Visual Studio
 *.sdf
 *.opensdf
 *.suo
+*.pdb
+*.ilk
+*.aps
+ipch/
 
-#eclipse build folders
-#Mac OS X
-addons/Debug Mac OS X
-addons/Release Mac OS X
-libs/openFrameworks/Debug Mac OS X
-libs/openFrameworks/Release Mac OS X
-apps/*/*/Debug Mac OS X
-apps/*/*/Release Mac OS X
+# Eclipse
+.metadata
+local.properties
+.externalToolBuilders
+
+# Android Studio
+.idea
+.gradle
+gradle
+gradlew
+gradlew.bat
+
+# QtCreator
+*.qbs.user
+*.pro.user
+*.pri
+
+
+#########################
+# operating system
+#########################
+
+# Linux
+*~
+# KDE
+.directory
+.AppleDouble
+
+# OSX
 .DS_Store
-xcuserdata
-project.xcworkspace
+*.swp
+*~.nib
+# Thumbnails
+._*
+examples/ios/**/mediaAssets
 
-#Linux
-addons/Debug Linux
-addons/Release Linux
-libs/openFrameworks/Debug Linux
-libs/openFrameworks/Release Linux
-apps/*/*/Debug Linux
-apps/*/*/Release Linux
-apps/*/*/Debug Linux64
-apps/*/*/Release Linux64
-apps/examples/*/Makefile
-apps/examples/*/config.make
-apps/addonsExamples/*/Makefile
-apps/addonsExamples/*/config.make
-*.pyc
+# Windows
+# Windows image file caches
+Thumbs.db
+# Folder config file
+Desktop.ini
 
-#Android
-addons/Debug Android
-addons/Release Android
-libs/openFrameworks/Debug Android
-libs/openFrameworks/Release Android
-libs/openFrameworks/Release
-libs/openFrameworks/Debug
-libs/openFrameworks/Release_arm7
-apps/*/*/Debug Android
-apps/*/*/Release Android
-apps/*/*/Debug
-apps/*/*/Release
-apps/*/*/Release_arm7
-apps/*/*/test link
-apps/*/*/obj
-apps/*/*/bin
+# Android
 .csettings
+/libs/openFrameworksCompiled/project/android/paths.make
+
+# Android Studio
+*.iml
+
+#########################
+# miscellaneous
+#########################
+
+.mailmap
+/apps*/

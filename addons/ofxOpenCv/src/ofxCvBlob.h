@@ -9,10 +9,7 @@
 *
 */
 
-
-#ifndef OFX_CV_BLOB_H
-#define OFX_CV_BLOB_H
-
+#pragma once
 
 #include "ofxCvConstants.h"
 
@@ -40,6 +37,7 @@ class ofxCvBlob {
 
         //----------------------------------------
         void draw(float x = 0, float y = 0){
+            ofPushStyle();
             ofNoFill();
             ofSetHexColor(0x00FFFF);
             ofBeginShape();
@@ -48,11 +46,7 @@ class ofxCvBlob {
             }
             ofEndShape(true);
             ofSetHexColor(0xff0099);
-            ofRect(x + boundingRect.x, y + boundingRect.y, boundingRect.width, boundingRect.height);
+            ofDrawRectangle(x + boundingRect.x, y + boundingRect.y, boundingRect.width, boundingRect.height);
+            ofPopStyle();
         }
 };
-
-
-#endif
-
-

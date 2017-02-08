@@ -267,6 +267,12 @@ ofQuaternion ofMatrix4x4::getRotate() const
 {
     ofQuaternion q;
 
+    ofMatrix4x4 mat = *this;
+    ofVec3f vs = mat.getScale();
+    mat.scale(1./vs.x,1./vs.y,1./vs.z);
+
+    ofVec4f* m = mat._mat;
+
     // Source: Gamasutra, Rotating Objects Using Quaternions
     //
     //http://www.gamasutra.com/features/programming/19980703/quaternions_01.htm
@@ -277,7 +283,7 @@ ofQuaternion ofMatrix4x4::getRotate() const
 
     int nxt[3] = {1, 2, 0};
 
-    tr = _mat[0][0] + _mat[1][1] + _mat[2][2]+1.0;
+    tr = m[0][0] + m[1][1] + m[2][2]+1.0;
 
     // check the diagonal
     if (tr > 0.0)
@@ -285,31 +291,31 @@ ofQuaternion ofMatrix4x4::getRotate() const
         s = (float)sqrt (tr);
         QW = s / 2.0;
         s = 0.5 / s;
-        QX = (_mat[1][2] - _mat[2][1]) * s;
-        QY = (_mat[2][0] - _mat[0][2]) * s;
-        QZ = (_mat[0][1] - _mat[1][0]) * s;
+        QX = (m[1][2] - m[2][1]) * s;
+        QY = (m[2][0] - m[0][2]) * s;
+        QZ = (m[0][1] - m[1][0]) * s;
     }
     else
     {
         // diagonal is negative
         i = 0;
-        if (_mat[1][1] > _mat[0][0])
+        if (m[1][1] > m[0][0])
             i = 1;
-        if (_mat[2][2] > _mat[i][i])
+        if (m[2][2] > m[i][i])
             i = 2;
         j = nxt[i];
         k = nxt[j];
 
-        s = (float)sqrt ((_mat[i][i] - (_mat[j][j] + _mat[k][k])) + 1.0);
+        s = (float)sqrt ((m[i][i] - (m[j][j] + m[k][k])) + 1.0);
 
         tq[i] = s * 0.5;
 
         if (s != 0.0)
             s = 0.5 / s;
 
-        tq[3] = (_mat[j][k] - _mat[k][j]) * s;
-        tq[j] = (_mat[i][j] + _mat[j][i]) * s;
-        tq[k] = (_mat[i][k] + _mat[k][i]) * s;
+        tq[3] = (m[j][k] - m[k][j]) * s;
+        tq[j] = (m[i][j] + m[j][i]) * s;
+        tq[k] = (m[i][k] + m[k][i]) * s;
 
         QX = tq[0];
         QY = tq[1];
@@ -575,7 +581,7 @@ bool ofMatrix4x4::makeInvertOf(const ofMatrix4x4 & rhs){
 	return is_4x3 ? invert_4x3(rhs,*this) :  invert_4x4(rhs,*this);
 }
 
-ofMatrix4x4 ofMatrix4x4::getInverse()
+ofMatrix4x4 ofMatrix4x4::getInverse() const
 {
     ofMatrix4x4 inverse;
     inverse.makeInvertOf(*this);
@@ -620,7 +626,7 @@ bool invert_4x3( const ofMatrix4x4& src, ofMatrix4x4 & dst )
 		return invert_4x3(tm,dst);
     }
 
-    register float r00, r01, r02,
+    float r00, r01, r02,
 	r10, r11, r12,
 	r20, r21, r22;
 	// Copy rotation components directly into registers for speed
@@ -634,7 +640,7 @@ bool invert_4x3( const ofMatrix4x4& src, ofMatrix4x4 & dst )
     dst._mat[0][2] = r01*r12 - r02*r11;
 
 	// Compute determinant of rot from 3 elements just computed
-    register float one_over_det = 1.0/(r00*dst._mat[0][0] + r10*dst._mat[0][1] + r20*dst._mat[0][2]);
+    float one_over_det = 1.0/(r00*dst._mat[0][0] + r10*dst._mat[0][1] + r20*dst._mat[0][2]);
     r00 *= one_over_det; r10 *= one_over_det; r20 *= one_over_det;  // Saves on later computations
 
 	// Finish computing inverse of rot
@@ -909,10 +915,10 @@ bool ofMatrix4x4::getPerspective(double& fovy,double& aspectRatio,
 
 void ofMatrix4x4::makeLookAtViewMatrix(const ofVec3f& eye,const ofVec3f& center,const ofVec3f& up)
 {
-	ofVec3f zaxis = (eye - center).normalized();
-	ofVec3f xaxis = up.getCrossed(zaxis).normalized();
+	ofVec3f zaxis = (eye - center).getNormalized();
+	ofVec3f xaxis = up.getCrossed(zaxis).getNormalized();
 	ofVec3f yaxis = zaxis.getCrossed(xaxis);
-	
+
 	_mat[0].set(xaxis.x, yaxis.x, zaxis.x, 0);
 	_mat[1].set(xaxis.y, yaxis.y, zaxis.y, 0);
 	_mat[2].set(xaxis.z, yaxis.z, zaxis.z, 0);
@@ -921,14 +927,14 @@ void ofMatrix4x4::makeLookAtViewMatrix(const ofVec3f& eye,const ofVec3f& center,
 
 void ofMatrix4x4::makeLookAtMatrix(const ofVec3f& eye,const ofVec3f& center,const ofVec3f& up)
 {
-	ofVec3f zaxis = (eye - center).normalized();
-	ofVec3f xaxis = up.getCrossed(zaxis).normalized();
+	ofVec3f zaxis = (eye - center).getNormalized();
+	ofVec3f xaxis = up.getCrossed(zaxis).getNormalized();
 	ofVec3f yaxis = zaxis.getCrossed(xaxis);
-	
+
 	_mat[0].set(xaxis.x, xaxis.y, xaxis.z, 0);
 	_mat[1].set(yaxis.x, yaxis.y, yaxis.z, 0);
 	_mat[2].set(zaxis.x, zaxis.y, zaxis.z, 0);
-	_mat[3] = eye;
+	_mat[3].set(eye.x, eye.y, eye.z, 1);
 }
 
 void ofMatrix4x4::getLookAt(ofVec3f& eye,ofVec3f& center,ofVec3f& up,float lookDistance) const

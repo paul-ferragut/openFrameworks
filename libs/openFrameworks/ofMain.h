@@ -4,10 +4,21 @@
 // utils
 #include "ofConstants.h"
 #include "ofFileUtils.h"
+#include "ofLog.h"
 #include "ofSystemUtils.h"
-#include "ofThread.h"
+
 #include "ofURLFileLoader.h"
+
 #include "ofUtils.h"
+
+#if !defined(TARGET_EMSCRIPTEN)
+#include "ofThread.h"
+#include "ofThreadChannel.h"
+#endif
+
+#include "ofFpsCounter.h"
+#include "ofJson.h"
+#include "ofXml.h"
 
 //--------------------------
 // types
@@ -16,6 +27,8 @@
 #include "ofColor.h"
 #include "ofPoint.h"
 #include "ofRectangle.h"
+#include "ofParameter.h"
+#include "ofParameterGroup.h"
 
 //--------------------------
 // math
@@ -24,34 +37,61 @@
 
 //--------------------------
 // communication
-#if !defined( TARGET_OF_IPHONE ) & !defined(TARGET_ANDROID)
+#if !defined( TARGET_OF_IOS ) & !defined(TARGET_ANDROID) & !defined(TARGET_EMSCRIPTEN)
 	#include "ofSerial.h"
 	#include "ofArduino.h"
 #endif
 
 //--------------------------
-// graphics
+// gl
+#include "ofFbo.h"
+#include "ofGLRenderer.h"
+#include "ofGLUtils.h"
+#include "ofLight.h"
+#include "ofMaterial.h"
+#include "ofShader.h"
 #include "ofTexture.h"
-#include "ofTrueTypeFont.h"
+#include "ofVbo.h"
+#include "ofVboMesh.h"
+#include "ofGLProgrammableRenderer.h"
+#ifndef TARGET_PROGRAMMABLE_GL
+	#include "ofGLRenderer.h"
+#endif
+
+//--------------------------
+// graphics
+#if !defined( TARGET_OF_IOS ) & !defined(TARGET_ANDROID) & !defined(TARGET_EMSCRIPTEN)
+	#include "ofCairoRenderer.h"
+#endif
 #include "ofGraphics.h"
 #include "ofImage.h"
-#include "ofFbo.h"
-#include "ofShader.h"
+#include "ofPath.h"
 #include "ofPixels.h"
-#include "ofCairoRenderer.h"
-#include "ofGLRenderer.h"
+#include "ofPolyline.h"
 #include "ofRendererCollection.h"
+#include "ofTessellator.h"
+#include "ofTrueTypeFont.h"
 
 //--------------------------
 // app
 #include "ofBaseApp.h"
 #include "ofAppRunner.h"
+#include "ofAppBaseWindow.h"
+#include "ofWindowSettings.h"
+#include "ofMainLoop.h"
+#if !defined( TARGET_OF_IOS ) & !defined(TARGET_ANDROID) & !defined(TARGET_EMSCRIPTEN) & !defined(TARGET_RASPBERRY_PI)
+	#include "ofAppGLFWWindow.h"
+	#if !defined( TARGET_LINUX_ARM )
+		#include "ofAppGlutWindow.h"
+	#endif
+#endif
 
 //--------------------------
 // audio
-#include "ofSoundStream.h"
-#ifndef TARGET_ANDROID
-#include "ofSoundPlayer.h"
+#ifndef TARGET_NO_SOUND
+	#include "ofSoundStream.h"
+	#include "ofSoundPlayer.h"
+	#include "ofSoundBuffer.h"
 #endif
 
 //--------------------------
@@ -65,12 +105,8 @@
 
 //--------------------------
 // 3d
-#include "ofVbo.h"
 #include "of3dUtils.h"
-#include "ofNode.h"
 #include "ofCamera.h"
-#include "ofMesh.h"
 #include "ofEasyCam.h"
-#include "ofLight.h"
-#include "ofVboMesh.h"
-
+#include "ofMesh.h"
+#include "ofNode.h"

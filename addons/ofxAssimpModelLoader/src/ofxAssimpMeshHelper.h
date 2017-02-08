@@ -1,26 +1,34 @@
+//
+//  ofxAssimpMeshHelper.h
+//  Created by Lukasz Karluk on 4/12/12.
+//
 
-#include "aiMesh.h"
-#include "ofVbo.h"
-#include "ofMaterial.h"
+#pragma once
 
+#include "ofMain.h"
+#include <assimp/cimport.h>
+#include <assimp/scene.h>
+#include <assimp/postprocess.h>
+#include "ofxAssimpTexture.h"
 
-class ofxAssimpMeshHelper{
-    public:
-	ofxAssimpMeshHelper(){
-		cout << "mesh helper cons"<< endl;
-	}
+struct aiMesh;
+
+class ofxAssimpMeshHelper {
+
+public:
+
+	ofxAssimpMeshHelper();
     
-    // pointer to the aiMesh we represent.
-    aiMesh* mesh;
+    bool hasTexture();
+    ofTexture & getTextureRef();
     
-    // VBOs
+    aiMesh * mesh; // pointer to the aiMesh we represent.
+
     ofVbo vbo;
     
-    // texture
-    ofTexture texture;
+    ofxAssimpTexture assimpTexture;
     vector<ofIndexType> indices;
     
-    // Material 
     ofMaterial material;
     
     ofBlendMode blendMode;
@@ -28,9 +36,11 @@ class ofxAssimpMeshHelper{
     bool twoSided;
     bool hasChanged;
 
-    std::vector<aiVector3D> animatedPos;
-    std::vector<aiVector3D> animatedNorm;
+    vector<aiVector3D> animatedPos;
+    vector<aiVector3D> animatedNorm;
 
     ofMesh cachedMesh;
     bool validCache;
+    
+    ofMatrix4x4 matrix;
 };

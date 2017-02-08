@@ -3,19 +3,19 @@
 
 #pragma once
 
-#include "testApp.h"
+#include "ofApp.h"
 
 
-void testApp::demo1_setup() {
+void ofApp::demo1_setup() {
 	ofLog(OF_LOG_NOTICE, "demo1_setup | useMSAA: " + useMSAA);
 	demoMode = 1;
 	
-	fbo.setup(kFBOWidth, kFBOHeight, GL_RGBA, useMSAA ? ofFbo::maxSamples() : 0);
-	shader.setup("", "shaders/blur_frag.glsl");	// omit vertex shader
+	fbo.allocate(kFBOWidth, kFBOHeight, GL_RGBA, useMSAA ? ofFbo::maxSamples() : 0);
+	shader.load("", "shaders/blur_frag.glsl");	// omit vertex shader
 }
 
 
-void testApp::demo1_draw() {
+void ofApp::demo1_draw() {
 	// draw scene into fbo
 	fbo.begin();
 	drawScene(0, 0, fbo.getWidth(), fbo.getHeight());
@@ -33,11 +33,11 @@ void testApp::demo1_draw() {
 	// draw fbo straight to screen with shader
 	// single pass, simple use
 	shader.begin();
-	fbo.getTexture(0).bind();
+	fbo.getTextureReference().bind();
 	shader.setUniform1i("tex0", 0);
 	shader.setUniform1f("sampleOffset", 10);
 	fbo.draw(kPreviewX(0), kPreviewY(1));
-	fbo.getTexture(0).unbind();
+	fbo.getTextureReference().unbind();
 	shader.end();
 	
 	

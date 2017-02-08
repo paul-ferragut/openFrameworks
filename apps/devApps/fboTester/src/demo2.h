@@ -3,10 +3,10 @@
 
 #pragma once
 
-#include "testApp.h"
+#include "ofApp.h"
 
 
-void testApp::demo2_setup() {
+void ofApp::demo2_setup() {
 	ofLog(OF_LOG_NOTICE, "demo2_setup | useMSAA: " + useMSAA);
 	demoMode = 2;
 	
@@ -15,10 +15,10 @@ void testApp::demo2_setup() {
 	s.height			= kFBOHeight;
 	s.numColorbuffers	= 4;
 	s.numSamples		= useMSAA ? ofFbo::maxSamples() : 0;
-	fbo.setup(s);
+	fbo.allocate(s);
 }
 
-void testApp::demo2_draw() {
+void ofApp::demo2_draw() {
 	// draw scene into fbo
 	fbo.begin();
 
@@ -40,7 +40,7 @@ void testApp::demo2_draw() {
 	// draw fbo textures to screen
 	glColor3f(1, 1, 1);
 	for(int i=0; i<fbo.getNumTextures(); i++) {
-		fbo.getTexture(i).draw(kPreviewX(i), kPreviewY(1), kPreviewWidth, kPreviewHeight);
+		fbo.getTextureReference(i).draw(kPreviewX(i), kPreviewY(1), kPreviewWidth, kPreviewHeight);
 	}
 	
 	glColor3f(0, 0, 0);

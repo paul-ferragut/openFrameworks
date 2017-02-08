@@ -26,8 +26,7 @@
  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef _OFXOSCBUNDLE_H
-#define _OFXOSCBUNDLE_H
+#pragma once
 
 #include <vector>
 #include "ofxOscMessage.h"
@@ -53,15 +52,13 @@ public:
 	int getBundleCount() const { return bundles.size(); }
 	int getMessageCount() const { return messages.size(); }
 	/// return the bundle or message at the given index
-	ofxOscBundle& getBundleAt( int i ) { return bundles[i]; }
-	ofxOscMessage& getMessageAt( int i ) { return messages[i]; }
+	const ofxOscBundle& getBundleAt( int i ) const { return bundles[i]; }
+    ofxOscBundle& getBundleAt( int i ) { return bundles[i]; }
+	const ofxOscMessage& getMessageAt( int i ) const { return messages[i]; }
+    ofxOscMessage& getMessageAt( int i ) { return messages[i]; }
 	
 private:
 		
 	std::vector< ofxOscMessage > messages;
 	std::vector< ofxOscBundle > bundles;
 };
-
-
-#endif
-
